@@ -1,0 +1,3 @@
+[submodule "learn.ai"]
+	path = learn.ai
+	url = git@github.com:IstiN/learn.ai.git
