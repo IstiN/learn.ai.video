@@ -1,19 +1,19 @@
 /**
  * Shared background music track for all scenes.
- * - Fades in over the first second.
- * - Fades out over the last 2 seconds.
- * - `offsetFrames`: how many frames into the music track this scene starts
- *   (e.g. Scene 2 starts after Scene 1's 8s, so offsetFrames = 8 * fps).
- * - `volume`: master volume multiplier (default 0.35 — subtle under dialog).
+ * - Fade in ~1.5s from segment start; fade out over last ~2.5s of composition.
+ * - `offsetFrames`: trim start of file + align envelope for per-scene sequences.
+ * - `volume`: linear gain 0–1 (default **0.3** = 30%).
+ * - `loop` + `loopVolumeCurveBehavior="extend"`: file repeats without resetting
+ *   the volume envelope each loop (Remotion default "repeat" would).
  */
 import React from "react";
 import { Audio } from "@remotion/media";
-import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { interpolate, staticFile, useVideoConfig } from "remotion";
 
 interface MusicTrackProps {
   /** Frame in the full track where this scene begins (for trimBefore) */
   offsetFrames?: number;
-  /** 0–1 master volume, default 0.35 */
+  /** 0–1 master volume, default 0.3 (30%) */
   volume?: number;
   /** Loop the track (for the full video composition) */
   loop?: boolean;
@@ -21,10 +21,9 @@ interface MusicTrackProps {
 
 export const MusicTrack: React.FC<MusicTrackProps> = ({
   offsetFrames = 0,
-  volume: masterVolume = 0.35,
+  volume: masterVolume = 0.3,
   loop = false,
 }) => {
-  const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
   const FADE_IN_FRAMES = fps * 1.5;
@@ -34,6 +33,7 @@ export const MusicTrack: React.FC<MusicTrackProps> = ({
     <Audio
       src={staticFile("assets/music.mp3")}
       loop={loop}
+      loopVolumeCurveBehavior={loop ? "extend" : undefined}
       trimBefore={offsetFrames}
       volume={(f) => {
         // f is relative to audio play start, so we map it to composition frame

@@ -195,7 +195,11 @@ const Arrow: React.FC<{ color: string; startFrame: number }> = ({ color, startFr
   );
 };
 
-export const Scene6Verification: React.FC<VideoProps> = ({ theme, locale }) => {
+export const Scene6Verification: React.FC<VideoProps> = ({
+  theme,
+  locale,
+  includeBackgroundMusic = true,
+}) => {
   const frame = useCurrentFrame();
   const audioSrc = getSceneAudio(locale, "scene6");
   const { fps, width, height } = useVideoConfig();
@@ -307,7 +311,9 @@ export const Scene6Verification: React.FC<VideoProps> = ({ theme, locale }) => {
 
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
-      <MusicTrack offsetFrames={SCENE_OFFSET_S * 30} volume={0.35} />
+      {includeBackgroundMusic && (
+        <MusicTrack offsetFrames={SCENE_OFFSET_S * 30} volume={0.3} />
+      )}
       {audioSrc && <Audio src={staticFile(audioSrc)} volume={1} />}
 
       <div style={{

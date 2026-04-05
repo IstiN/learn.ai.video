@@ -229,6 +229,7 @@ const Avatar: React.FC<{
 export const Scene2DeviceMockup: React.FC<VideoProps> = ({
   theme,
   locale,
+  includeBackgroundMusic = true,
 }) => {
   const frame = useCurrentFrame();
   const audioSrc = getSceneAudio(locale, "scene2");
@@ -308,7 +309,9 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
         }}
       >
       {/* Background music — offset to 9s (Scene 1 duration) for standalone preview */}
-      <MusicTrack offsetFrames={9 * 30} volume={0.35} />
+      {includeBackgroundMusic && (
+        <MusicTrack offsetFrames={9 * 30} volume={0.3} />
+      )}
 
       {/* Subtle grid */}
       <div

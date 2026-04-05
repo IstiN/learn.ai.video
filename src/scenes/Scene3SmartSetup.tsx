@@ -420,7 +420,11 @@ const Arrow: React.FC<{ color: string; startFrame: number }> = ({ color, startFr
 };
 
 // ─── Main Scene ───────────────────────────────────────────────────────────────
-export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
+export const Scene3SmartSetup: React.FC<VideoProps> = ({
+  theme,
+  locale,
+  includeBackgroundMusic = true,
+}) => {
   const frame = useCurrentFrame();
   const audioSrc = getSceneAudio(locale, "scene3");
   const { fps, width, height } = useVideoConfig();
@@ -546,7 +550,9 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
       {/* Background music — offset past Scene 1 + 2 */}
-      <MusicTrack offsetFrames={SCENE_OFFSET_S * 30} volume={0.35} />
+      {includeBackgroundMusic && (
+        <MusicTrack offsetFrames={SCENE_OFFSET_S * 30} volume={0.3} />
+      )}
       {audioSrc && <Audio src={staticFile(audioSrc)} volume={1} />}
 
       {/* Subtle grid */}

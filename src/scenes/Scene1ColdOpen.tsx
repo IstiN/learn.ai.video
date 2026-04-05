@@ -66,7 +66,11 @@ const QuestionMark: React.FC<{ x: number; y: number; size: number; delay: number
 
 // ─── Main Scene ───────────────────────────────────────────────────────────────
 
-export const Scene1ColdOpen: React.FC<VideoProps> = ({ theme, locale }) => {
+export const Scene1ColdOpen: React.FC<VideoProps> = ({
+  theme,
+  locale,
+  includeBackgroundMusic = true,
+}) => {
   const frame = useCurrentFrame();
   const audioSrc = getSceneAudio(locale, "scene1");
   const { fps, width, height } = useVideoConfig();
@@ -166,7 +170,9 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({ theme, locale }) => {
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
       {/* Background music at 20% */}
-      <MusicTrack offsetFrames={0} volume={0.35} />
+      {includeBackgroundMusic && (
+        <MusicTrack offsetFrames={0} volume={0.3} />
+      )}
       {/* Voiceover – full volume */}
       {audioSrc && <Audio src={staticFile(audioSrc)} volume={1} />}
       {/* Glow orbs */}

@@ -64,46 +64,86 @@ export const FullVideo: React.FC<VideoProps> = ({ theme, locale }) => {
   return (
     <AbsoluteFill>
       {/* Continuous music across all scenes */}
-      <MusicTrack offsetFrames={0} volume={0.35} loop />
+      <MusicTrack offsetFrames={0} volume={0.3} loop />
 
       <Sequence from={S1} durationInFrames={SCENE1_FRAMES}>
-        <Scene1ColdOpen theme={theme} locale={locale} />
+        <Scene1ColdOpen
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S2} durationInFrames={SCENE2_FRAMES}>
-        <Scene2DeviceMockup theme={theme} locale={locale} />
+        <Scene2DeviceMockup
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S3} durationInFrames={SCENE3_FRAMES}>
-        <Scene3SmartSetup theme={theme} locale={locale} />
+        <Scene3SmartSetup
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S4} durationInFrames={SCENE4_FRAMES}>
-        <Scene4ScanSolve theme={theme} locale={locale} />
+        <Scene4ScanSolve
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S5} durationInFrames={SCENE5_FRAMES}>
-        <Scene5AiChat theme={theme} locale={locale} />
+        <Scene5AiChat
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S6} durationInFrames={SCENE6_FRAMES}>
-        <Scene6Verification theme={theme} locale={locale} />
+        <Scene6Verification
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S7} durationInFrames={SCENE7_FRAMES}>
-        <Scene7FamilyHub theme={theme} locale={locale} />
+        <Scene7FamilyHub
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={SLL} durationInFrames={SCENE_LL_FRAMES}>
-        <SceneListenLearn theme={theme} locale={locale} />
+        <SceneListenLearn
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S8} durationInFrames={SCENE8_FRAMES}>
-        <Scene8TrackProgress theme={theme} locale={locale} />
+        <Scene8TrackProgress
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       <Sequence from={S9} durationInFrames={SCENE9_FRAMES}>
-        <Scene9CTA theme={theme} locale={locale} />
+        <Scene9CTA
+          theme={theme}
+          locale={locale}
+          includeBackgroundMusic={false}
+        />
       </Sequence>
 
       {/* Full-frame stacking layer; corner logo uses compositionFrame from root (not nested Sequence). */}
