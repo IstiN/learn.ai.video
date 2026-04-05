@@ -1,0 +1,17 @@
+{
+  "_readme": "Maps locale codes to scene audio files. Falls back to 'en' if the locale is not available. Add a new locale key with scene paths to enable localized audio. Keys match scene IDs from voice-scripts.json.",
+  "_naming": "Audio files go in public/audio/{lang}/{scene_id}.wav  e.g. public/audio/ru/scene_1.wav",
+  "default_locale": "en",
+  "en": {
+    "scene1":  "audio/en/scene_1.wav",
+    "scene2":  "audio/en/scene_2.wav",
+    "scene3":  "audio/en/scene_3.wav",
+    "scene4":  "audio/en/scene_4.wav",
+    "scene5":  "audio/en/scene_5.wav",
+    "scene6":  "audio/en/scene_6.wav",
+    "scene7":  "audio/en/scene_7.wav",
+    "scene8":  "audio/en/scene_8.wav",
+    "scene9":  "audio/en/scene_9.wav",
+    "scene10": "audio/en/scene_10.wav"
+  }
+}

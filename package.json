@@ -1,0 +1,32 @@
+{
+  "name": "learn.ai.video",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx remotion studio src/index.ts",
+    "render": "npx remotion render Scene1 out/scene1.mp4",
+    "render:light": "npx remotion render Scene1 out/scene1-light.mp4 --props='{\"theme\":\"light\",\"locale\":\"en-US\"}'",
+    "render:all": "node scripts/render-all.js",
+    "render:all:en": "node scripts/render-all.js --locale en-US",
+    "render:all:light": "node scripts/render-all.js --theme light"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.443",
+    "@remotion/google-fonts": "^4.0.443",
+    "@remotion/media": "^4.0.443",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-qr-code": "^2.0.18",
+    "remotion": "^4.0.443"
+  }
+}

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 37050 37050" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  xml:space="preserve" xmlns:serif="http://www.serif.com/"
+  style="fill-rule:evenodd;clip-rule:evenodd;">
+  
+  <defs>
+    <radialGradient id="_Radial1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="matrix(5208.333333,0,0,5208.333333,16493.055554,17497.222221)">
+      <stop offset="0" style="stop-color:#ffd93d;stop-opacity:1"/>
+      <stop offset="1" style="stop-color:#ff6b6b;stop-opacity:1"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Pulsing orbit rings -->
+  <circle cx="16493.054" cy="17497.221" r="9765.625"
+    style="fill:none;stroke:#fff;stroke-opacity:0.3;stroke-width:520.83px;">
+    <animate attributeName="stroke-opacity" values="0.3;0.5;0.3" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="16493.054" cy="17497.221" r="6510.417"
+    style="fill:none;stroke:#ffc800;stroke-opacity:0.7;stroke-width:434.04px;">
+    <animate attributeName="stroke-opacity" values="0.7;0.9;0.7" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="16493.054" cy="17497.221" r="4340.279" style="fill:url(#_Radial1)"/>
+
+  <!-- Static orbital lines -->
+  <g>
+    <path d="M26258.679,17497.221l-3255.208,0"
+      style="fill:none;fill-rule:nonzero;stroke:#ffc800;stroke-width:520.83px;stroke-linecap:round;"/>
+    <path d="M23570.608,10871.058l-2170.137,2170.138"
+      style="fill:none;fill-rule:nonzero;stroke:#ffc800;stroke-width:520.83px;stroke-linecap:round;"/>
+    <path d="M11276.042,13397.1l-2170.138,-2170.138"
+      style="fill:none;fill-rule:nonzero;stroke:#ffc800;stroke-width:520.83px;stroke-linecap:round;"/>
+  </g>
+
+  <!-- Center core with pulse -->
+  <circle cx="16493.054" cy="17497.221" r="1953.125" style="fill:#fff;">
+    <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="16493.054" cy="17497.221" r="868.054" style="fill:#ff6b6b;"/>
+
+  <!-- Subject icons with zoom in/out -->
+  <g id="subject-1" transform-origin="8897.571 10263.421">
+    <circle cx="8897.571" cy="10263.421" r="2604.167"
+      style="fill:#fff;fill-opacity:0.15;stroke:#fff;stroke-width:208.33px;"/>
+    <path d="M10199.654,9612.379l0,434.029c0,359.375 -291.667,651.042 -651.042,651.042l-1302.083,0c-359.375,0 -651.042,-291.667 -651.042,-651.042l0,-434.029c0,-359.375 291.667,-651.042 651.042,-651.042l1302.083,0c359.375,0 651.042,291.667 651.042,651.042Z"
+      style="fill:#1cb0f6;"/>
+    <path d="M8246.529,10697.446l651.042,651.042l0,-651.042l-651.042,0Z"
+      style="fill:#1cb0f6;fill-rule:nonzero;"/>
+    <path d="M8029.513,9612.379l1736.112,0"
+      style="fill:none;fill-rule:nonzero;stroke:#fff;stroke-width:208.33px;stroke-linecap:round;"/>
+    <path d="M8029.513,10263.421l1302.083,0"
+      style="fill:none;fill-rule:nonzero;stroke:#fff;stroke-width:208.33px;stroke-linecap:round;"/>
+    <animateTransform attributeName="transform" type="scale" values="1;1.15;1" dur="2.5s" repeatCount="indefinite" additive="sum"/>
+  </g>
+
+  <g id="subject-2" transform-origin="16493.054 8093.283">
+    <circle cx="16493.054" cy="8093.283" r="2604.167"
+      style="fill:#fff;fill-opacity:0.15;stroke:#fff;stroke-width:208.33px;"/>
+    <text x="15190.971px" y="9106.025px"
+      style="font-family:'Helvetica-Bold', 'Helvetica';font-weight:700;font-size:3038.196px;fill:#ffc800;">∑</text>
+    <animateTransform attributeName="transform" type="scale" values="1;1.15;1" dur="2.5s" begin="0.6s" repeatCount="indefinite" additive="sum"/>
+  </g>
+
+  <g id="subject-3" transform-origin="24088.542 10263.421">
+    <circle cx="24088.542" cy="10263.421" r="2604.167"
+      style="fill:#fff;fill-opacity:0.15;stroke:#fff;stroke-width:208.33px;"/>
+    <circle cx="24088.542" cy="10263.421" r="651.042" style="fill:#ff6b6b;"/>
+    <path d="M22135.417,9612.379c1302.083,-651.042 2170.138,-651.042 3472.221,0"
+      style="fill:none;fill-rule:nonzero;stroke:#1cb0f6;stroke-width:208.33px;"/>
+    <path d="M22135.417,10914.462c1302.083,651.042 2170.138,651.042 3472.221,0"
+      style="fill:none;fill-rule:nonzero;stroke:#58cc02;stroke-width:208.33px;"/>
+    <animateTransform attributeName="transform" type="scale" values="1;1.15;1" dur="2.5s" begin="1.2s" repeatCount="indefinite" additive="sum"/>
+  </g>
+
+  <g id="subject-4" transform-origin="27343.75 17497.221">
+    <circle cx="27343.75" cy="17497.221" r="2604.167"
+      style="fill:#fff;fill-opacity:0.15;stroke:#fff;stroke-width:208.33px;"/>
+    <path d="M28645.833,16846.179l0,1302.083c0,359.375 -291.667,651.042 -651.042,651.042l-1302.083,0c-359.375,0 -651.042,-291.667 -651.042,-651.042l0,-1302.083c0,-359.375 291.667,-651.042 651.042,-651.042l1302.083,0c359.375,0 651.042,291.667 651.042,651.042Z"
+      style="fill:#ffc800;"/>
+    <path d="M26041.667,17063.196l2604.167,0"
+      style="fill:none;fill-rule:nonzero;stroke:#8b5fd6;stroke-width:208.33px;"/>
+    <path d="M26692.708,16412.154l0,2170.138"
+      style="fill:none;fill-rule:nonzero;stroke:#8b5fd6;stroke-width:208.33px;"/>
+    <animateTransform attributeName="transform" type="scale" values="1;1.15;1" dur="2.5s" begin="1.8s" repeatCount="indefinite" additive="sum"/>
+  </g>
+
+  <!-- Static L and .ai badge -->
+  <text x="7957.171px" y="26041.667px"
+    style="font-family:'Helvetica-Bold', 'Helvetica';font-weight:700;font-size:12152.779px;fill:#fff;">L</text>
+  <path d="M31177.658,25535.296l0,4484.95c0,558.942 -453.783,1012.725 -1012.725,1012.725l-6655.088,0c-558.942,0 -1012.725,-453.783 -1012.725,-1012.725l0,-4484.95c0,-558.942 453.783,-1012.725 1012.725,-1012.725l6655.087,0c558.942,0 1012.725,453.783 1012.725,1012.725Z"
+    style="fill:#fff;"/>
+  <text x="23075.817px" y="29441.546px"
+    style="font-family:'Helvetica-Bold', 'Helvetica';font-weight:700;font-size:5208.333px;fill:#8b5fd6;">.ai</text>
+</svg>

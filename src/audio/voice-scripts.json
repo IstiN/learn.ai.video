@@ -1,0 +1,142 @@
+{
+  "_readme": "Voice scripts for FamilyLearn.AI promo video. Each line maps to a translation key in src/i18n/translations.ts. Use this JSON to generate locale-specific TTS scripts via scripts/generate-locale-scripts.mjs",
+  "speakers": {
+    "alex": {
+      "role": "Student",
+      "voice_description": "Man — enthusiastic, relatable, slightly frustrated then excited"
+    },
+    "maya": {
+      "role": "AI Guide",
+      "voice_description": "Woman — warm, confident, clear and encouraging"
+    }
+  },
+  "scenes": [
+    {
+      "id": "scene1",
+      "index": 1,
+      "title": "Cold Open",
+      "timing": { "start_s": 0, "end_s": 9, "audio_duration_s": 8.81 },
+      "tone": "Frustrated, relatable tone for Alex; warm, confident for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "s1_alex1", "en": "Ugh — homework again?" },
+        { "speaker": "alex", "key": "s1_alex2", "en": "I don't even know where to start…" },
+        { "speaker": "maya", "key": "s1_maya1", "en": "What if help was always just one tap away?" }
+      ]
+    },
+    {
+      "id": "scene2",
+      "index": 2,
+      "title": "Meet FamilyLearn.AI",
+      "timing": { "start_s": 9, "end_s": 26, "audio_duration_s": 16.09 },
+      "tone": "Warm, welcoming tone throughout",
+      "lines": [
+        { "speaker": "maya", "key": "s2_maya1", "en": "FamilyLearn.AI is your personal AI tutor — available 24/7, on any device, in over 20 languages." },
+        { "speaker": "alex", "key": "s2_alex1", "en": "So whether I'm on my phone, tablet, or laptop — it's always there?" },
+        { "speaker": "maya", "key": "s2_maya2", "en": "Exactly. Let me show you — starting with how it sets up your subjects." }
+      ]
+    },
+    {
+      "id": "scene3",
+      "index": 3,
+      "title": "Smart Setup",
+      "timing": { "start_s": 26, "end_s": 42, "audio_duration_s": 15.21 },
+      "tone": "Curious tone for Alex; warm, clear for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "s3_alex1", "en": "But how does it know what subjects I have?" },
+        { "speaker": "maya", "key": "s3_maya1", "en": "Just snap a photo of your class schedule — FamilyLearn.AI reads it and sets up all your subjects automatically." },
+        { "speaker": "alex", "key": "s3_alex2", "en": "My whole semester organized in seconds?" },
+        { "speaker": "maya", "key": "s3_maya2", "en": "One scan, and you're all set. The AI handles the rest." }
+      ]
+    },
+    {
+      "id": "scene4",
+      "index": 4,
+      "title": "Scan & Solve",
+      "timing": { "start_s": 42, "end_s": 64, "audio_duration_s": 21.13 },
+      "tone": "Curious, excited tone for Alex; clear, enthusiastic for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "s4_alex1", "en": "Nice! Now I've got actual homework — a photo works for that too?" },
+        { "speaker": "maya", "key": "s4_maya1", "en": "Snap a photo, paste a link, or just type it in — FamilyLearn.AI reads it instantly and organises everything by subject." },
+        { "speaker": "alex", "key": "s4_alex2", "en": "Photos, links, typed text — all in one chat?" },
+        { "speaker": "maya", "key": "s4_maya2", "en": "Exactly. Send it any way you like — FamilyLearn.AI does the rest." }
+      ]
+    },
+    {
+      "id": "scene5",
+      "index": 5,
+      "title": "AI Chat Assistant",
+      "timing": { "start_s": 64, "end_s": 82, "audio_duration_s": 17.85 },
+      "tone": "Inquisitive tone for Alex; reassuring, friendly for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "s5_alex1", "en": "And if I'm stuck on a problem — can I just ask?" },
+        { "speaker": "maya", "key": "s5_maya1", "en": "Ask anything — step-by-step solutions, hints, or full explanations. Your AI tutor is always here." },
+        { "speaker": "alex", "key": "s5_alex2", "en": "It's like a tutor that never gets tired?" },
+        { "speaker": "maya", "key": "s5_maya2", "en": "One that knows exactly where you're struggling — and guides you forward from there." }
+      ]
+    },
+    {
+      "id": "scene6",
+      "index": 6,
+      "title": "Instant AI Verification",
+      "timing": { "start_s": 82, "end_s": 98, "audio_duration_s": 15.89 },
+      "tone": "Inquisitive tone for Alex; clear, confident for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "s6_alex1", "en": "And before my exam — can it check what I actually know?" },
+        { "speaker": "maya", "key": "s6_maya1", "en": "It builds practice problems from your own materials — then tests if you really understand." },
+        { "speaker": "alex", "key": "s6_alex2", "en": "So I know I really learned it — not just memorized it?" },
+        { "speaker": "maya", "key": "s6_maya2", "en": "Real understanding, verified." }
+      ]
+    },
+    {
+      "id": "scene7",
+      "index": 7,
+      "title": "Family Learning Hub",
+      "timing": { "start_s": 98, "end_s": 114, "audio_duration_s": 15.13 },
+      "tone": "Lighthearted, slightly amused for Alex; warm, reassuring for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "s7_alex1", "en": "And my parents — can they see how I'm doing?" },
+        { "speaker": "maya", "key": "s7_maya1", "en": "Parents get their own dashboard — progress, streaks, and activity for every child." },
+        { "speaker": "alex", "key": "s7_alex2", "en": "So she'll stop asking if I did my homework?" },
+        { "speaker": "maya", "key": "s7_maya2", "en": "Everything transparently — and safely." }
+      ]
+    },
+    {
+      "id": "scene8",
+      "index": 8,
+      "title": "Listen & Learn",
+      "timing": { "start_s": 114, "end_s": 135, "audio_duration_s": 20.89 },
+      "tone": "Curious, energetic for Alex; enthusiastic for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "sll_alex1", "en": "Can I also listen to study audio while commuting — like a podcast?" },
+        { "speaker": "maya", "key": "sll_maya1", "en": "Add any audio to a playlist — lectures, voice notes, summaries — and study on the go. Every session earns Learn Points." },
+        { "speaker": "alex", "key": "sll_alex2", "en": "Learn Points? Like a game?" },
+        { "speaker": "maya", "key": "sll_maya2", "en": "Every playlist you complete, every practice session — points stack up and your level grows." }
+      ]
+    },
+    {
+      "id": "scene9",
+      "index": 9,
+      "title": "Track Every Win",
+      "timing": { "start_s": 135, "end_s": 146, "audio_duration_s": 10.89 },
+      "tone": "Energetic, motivating — Maya opens first",
+      "lines": [
+        { "speaker": "maya", "key": "s8_maya1", "en": "And here's the best part — every win gets tracked." },
+        { "speaker": "alex", "key": "s8_alex1", "en": "Streaks, achievements, progress charts — it's all there?" },
+        { "speaker": "maya", "key": "s8_maya2", "en": "Your journey, your growth, celebrated every step of the way." }
+      ]
+    },
+    {
+      "id": "scene10",
+      "index": 10,
+      "title": "Call to Action",
+      "timing": { "start_s": 146, "end_s": 161, "audio_duration_s": 14.01 },
+      "tone": "Excited, convincing for Alex; warm, inviting closing tone for Maya",
+      "lines": [
+        { "speaker": "alex", "key": "s9_alex1", "en": "Okay — I want this. Where do I get it?" },
+        { "speaker": "maya", "key": "s9_maya1", "en": "Download FamilyLearn.AI free — from the App Store or Google Play. Over a thousand families are already learning smarter." },
+        { "speaker": "alex", "key": "s9_alex2", "en": "I'm in. Starting today." },
+        { "speaker": "maya", "key": "s9_maya2", "en": "Start learning smarter — today." }
+      ]
+    }
+  ]
+}
