@@ -307,10 +307,10 @@ export const Scene9CTA: React.FC<VideoProps> = ({ theme, locale }) => {
           </div>
           <div>
             <div style={{ fontFamily, fontWeight: 800, fontSize: 32, color: colors.textMain, lineHeight: 1.1 }}>
-              FamilyLearn.AI
+              {t(locale, "app_name")}
             </div>
             <div style={{ fontFamily, fontWeight: 500, fontSize: 16, color: colors.textMain, opacity: 0.6 }}>
-              Your personal AI tutor
+              {t(locale, "s9_hero_tagline")}
             </div>
           </div>
         </div>
@@ -370,8 +370,8 @@ export const Scene9CTA: React.FC<VideoProps> = ({ theme, locale }) => {
           <StoreBadge
             startFrame={T.BADGES_IN}
             colors={colors} theme={theme}
-            topLine="Download on the"
-            bottomLine="App Store"
+            topLine={t(locale, "s9_store_apple_topline")}
+            bottomLine={t(locale, "s9_store_apple_bottomline")}
             icon={
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" stroke={colors.brand} strokeWidth="1.5"/>
@@ -382,8 +382,8 @@ export const Scene9CTA: React.FC<VideoProps> = ({ theme, locale }) => {
           <StoreBadge
             startFrame={T.BADGES_IN + Math.round(0.25 * fps)}
             colors={colors} theme={theme}
-            topLine="Get it on"
-            bottomLine="Google Play"
+            topLine={t(locale, "s9_store_google_topline")}
+            bottomLine={t(locale, "s9_store_google_bottomline")}
             icon={
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                 <path d="M5 3l14 9-14 9V3z" stroke={colors.brand} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>

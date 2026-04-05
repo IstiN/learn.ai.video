@@ -4,8 +4,8 @@
  * Story: User snaps a photo of their class schedule →
  *        FamilyLearn.AI chat reads it → subjects are created automatically.
  *
- * Left panel:  full iPhone store_chat → shutter → store_subjects; two separate tablet frames
- *              (homework + subjects goldens), staggered slide-in — no split-crop of one surface
+ * Left panel:  tablet | phone — same sizing as Scene 5 (shared row height, max half-width).
+ *              Tablet goldens crossfade homework → subjects; iPhone store_chat → shutter → subjects.
  * Right panel: Alex/Maya dialog bubbles + animated chat UI typing effect
  * Bottom:      "Snap · Chat · Subjects" badge row
  */
@@ -22,7 +22,7 @@ import {
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
 import { themes, ThemeColors } from "../themes";
-import { t } from "../i18n/translations";
+import { badgeTriple, t } from "../i18n/translations";
 import { UserAvatarIcon } from "../components/AppIcons";
 import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
@@ -33,6 +33,7 @@ import {
   scene3StoreChatPath,
   scene3SubjectsStorePath,
 } from "../config/scene-assets";
+import { StoreTabletFrameLayers } from "../components/StoreDeviceFrames";
 
 const { fontFamily } = loadFont("normal", {
   weights: ["400", "600", "700", "800"],
@@ -243,13 +244,13 @@ const ChatWidget: React.FC<{
 
   // Step 3: subjects appear one by one after typing ends
   const subj1Frame = Math.round(typingEnd);
-  const subj2Frame = subj1Frame + Math.round(0.35 * fps);
-  const subj3Frame = subj2Frame + Math.round(0.35 * fps);
-  const subj4Frame = subj3Frame + Math.round(0.35 * fps);
 
-  const subjects = ["Mathematics", "Physics", "English", "History"];
+  const subjects = t(locale, "s3_chat_subjects")
+    .split("|")
+    .map((x) => x.trim())
+    .filter(Boolean);
   const subjectColors = [colors.brand, "#3B82F6", "#10B981", "#F59E0B"];
-  const subjectFrames = [subj1Frame, subj2Frame, subj3Frame, subj4Frame];
+  const subjectFrames = subjects.map((_, i) => subj1Frame + Math.round(i * 0.35 * fps));
 
   const chatBg = theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.9)";
   const chatBorder = theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(120,80,220,0.18)";
@@ -284,10 +285,10 @@ const ChatWidget: React.FC<{
         </div>
         <div>
           <div style={{ fontFamily, fontWeight: 700, fontSize: 14, color: colors.textMain }}>
-            FamilyLearn.AI
+            {t(locale, "app_name")}
           </div>
           <div style={{ fontFamily, fontSize: 11, color: colors.brand, fontWeight: 600 }}>
-            online
+            {t(locale, "s3_chat_online")}
           </div>
         </div>
       </div>
@@ -310,7 +311,7 @@ const ChatWidget: React.FC<{
             <circle cx="12" cy="13" r="4" stroke={colors.brand} strokeWidth="2"/>
           </svg>
           <span style={{ fontFamily, fontSize: 13, fontWeight: 600, color: colors.textMain }}>
-            Schedule photo.jpg
+            {t(locale, "s3_chat_demo_filename")}
           </span>
         </div>
 
@@ -349,7 +350,7 @@ const ChatWidget: React.FC<{
             opacity: showTyping ? 0 : 1,
           }}>
             <div style={{ fontFamily, fontSize: 12, fontWeight: 700, color: colors.brand, marginBottom: 2 }}>
-              Subjects created:
+              {t(locale, "s3_chat_subjects_heading")}
             </div>
             {subjects.map((subj, i) => {
               const subjOpacity = interpolate(frame, [subjectFrames[i], subjectFrames[i] + 0.25 * fps], [0, 1], {
@@ -359,12 +360,12 @@ const ChatWidget: React.FC<{
                 extrapolateRight: "clamp", extrapolateLeft: "clamp",
               });
               return (
-                <div key={subj} style={{
+                <div key={`subj-${i}`} style={{
                   opacity: subjOpacity,
                   transform: `translateX(${subjX}px)`,
                   display: "flex", alignItems: "center", gap: 8,
                 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: subjectColors[i], flexShrink: 0 }} />
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: subjectColors[i % subjectColors.length], flexShrink: 0 }} />
                   <span style={{ fontFamily, fontSize: 13, fontWeight: 600, color: colors.textMain }}>{subj}</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginLeft: "auto" }}>
                     <path d="M20 6L9 17l-5-5" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -426,18 +427,30 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
   const colors = themes[theme];
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
+  const [s3Badge1, s3Badge2, s3Badge3] = badgeTriple(locale, "s3_badge");
 
-  // ── iPhone golden: 1284×2778 (store_subjects) ─────────────────────────────
-  const IOS_ASPECT = 1284 / 2778;
-  const PHONE_H = Math.round(height * 0.70);
-  const PHONE_W = Math.round(PHONE_H * IOS_ASPECT);
-
-  // ── Tablet goldens: 2732×2048 — two devices side by side in same width as one “large” tablet
+  // ── Device row — match Scene 5 (equal height, scale if row wider than half frame) ──
   const TABLET_ASPECT = 2732 / 2048;
-  const TABLET_STRIP_MAX_W = Math.round(height * 0.38 * TABLET_ASPECT);
-  const TABLET_PAIR_GAP = 12;
-  const EACH_TABLET_W = Math.floor((TABLET_STRIP_MAX_W - TABLET_PAIR_GAP) / 2);
-  const EACH_TABLET_H = Math.round(EACH_TABLET_W / TABLET_ASPECT);
+  const IOS_ASPECT = 1284 / 2778;
+  const COL_GAP = 28;
+  const LEFT_PAD = 40;
+
+  let rowH = Math.round(height * 0.72);
+  let phoneH = rowH;
+  let phoneW = Math.round(phoneH * IOS_ASPECT);
+  let tabletH = rowH;
+  let tabletW = Math.round(tabletH * TABLET_ASPECT);
+  let rowW = tabletW + COL_GAP + phoneW;
+  const maxRowW = Math.round(width * 0.5);
+  if (rowW > maxRowW) {
+    const s = maxRowW / rowW;
+    rowH = Math.round(rowH * s);
+    phoneH = rowH;
+    phoneW = Math.round(phoneH * IOS_ASPECT);
+    tabletH = rowH;
+    tabletW = Math.round(tabletH * TABLET_ASPECT);
+    rowW = tabletW + COL_GAP + phoneW;
+  }
 
   const iosSubjectsSrc = staticFile(scene3SubjectsStorePath("ios", theme, locale));
   const iosStoreChatSrc = staticFile(scene3StoreChatPath("ios", theme, locale));
@@ -449,14 +462,13 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
   const CAMERA_HIDE = AFTER_SHOT + Math.round(0.38 * fps);
 
   // ── Layout ─────────────────────────────────────────────────────────────────
-  const LEFT_GAP = 28;
-  const LEFT_W = TABLET_STRIP_MAX_W + PHONE_W + LEFT_GAP;
+  const LEFT_W = rowW + LEFT_PAD;
   const RIGHT_W = width - LEFT_W - 80;
 
   const leftStart = isRtl ? width - LEFT_W - 20 : 20;
   const rightStart = isRtl ? 20 : LEFT_W + 60;
 
-  const centerPhoneX = (LEFT_W - PHONE_W) / 2;
+  const centerPhoneX = (LEFT_W - phoneW) / 2;
 
   // ── Banner (right panel label only) ───────────────────────────────────────
   const bannerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
@@ -482,36 +494,10 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
   const phoneEdge = interpolate(
     layoutSpring,
     [0, 1],
-    [centerPhoneX, TABLET_STRIP_MAX_W + LEFT_GAP],
+    [centerPhoneX, tabletW + COL_GAP],
     { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
   );
 
-  const tabletHwSpring = spring({
-    frame: frame - AFTER_SHOT,
-    fps,
-    config: { damping: 16, stiffness: 128 },
-  });
-  const tabletSubSpring = spring({
-    frame: frame - AFTER_SHOT - Math.round(0.14 * fps),
-    fps,
-    config: { damping: 16, stiffness: 128 },
-  });
-  const hwTabletX = interpolate(tabletHwSpring, [0, 1], [isRtl ? 22 : -26, 0], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-  });
-  const hwTabletY = interpolate(tabletHwSpring, [0, 1], [14, 0], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-  });
-  const subTabletX = interpolate(tabletSubSpring, [0, 1], [isRtl ? -22 : 26, 0], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-  });
-  const subTabletY = interpolate(tabletSubSpring, [0, 1], [18, 0], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-  });
   const tabletSlideX = interpolate(
     layoutSpring,
     [0, 1],
@@ -532,6 +518,15 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
     extrapolateLeft: "clamp",
   });
   const subjectsPhoneOpacity = interpolate(frame, [crossA, crossB], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const tabletHomeworkLayerOpacity = interpolate(frame, [crossA, crossB], [1, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const tabletSubjectsLayerOpacity = interpolate(frame, [crossA, crossB], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
@@ -570,7 +565,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
         opacity: theme === "dark" ? 0.06 : 0.04, filter: "blur(80px)",
       }} />
 
-      {/* ── Left: store_chat phone → shutter → subjects; two tablet mockups (homework + subjects) ── */}
+      {/* ── Left: tablet (Scene 5–style size) | phone — tablet left, phone right (LTR) ── */}
       <div
         style={{
           position: "absolute",
@@ -581,84 +576,39 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
           height,
         }}
       >
-        {/* Two separate tablet frames (full golden each) — staggered motion, no half-crop */}
+        {/* Tablet — homework ↔ subjects crossfade (same frame style as Scene 5) */}
         <div
           style={{
             position: "absolute",
             left: isRtl ? undefined : 0,
             right: isRtl ? 0 : undefined,
-            top: (height - EACH_TABLET_H) / 2,
-            width: TABLET_STRIP_MAX_W,
-            height: EACH_TABLET_H,
+            top: (height - tabletH) / 2,
             opacity: tabletOpacity,
             transform: `translateX(${tabletSlideX}px)`,
-            display: "flex",
-            flexDirection: isRtl ? "row-reverse" : "row",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            gap: TABLET_PAIR_GAP,
             pointerEvents: "none",
+            filter: `drop-shadow(0 0 28px ${colors.brand}33)`,
           }}
         >
-          {(
-            [
-              { src: tabletHomeworkSrc, x: hwTabletX, y: hwTabletY },
-              { src: tabletSubjectsSrc, x: subTabletX, y: subTabletY },
-            ] as const
-          ).map((item, idx) => (
-            <div
-              key={idx}
-              style={{
-                position: "relative",
-                width: EACH_TABLET_W,
-                height: EACH_TABLET_H,
-                borderRadius: 16,
-                overflow: "hidden",
-                border: `2px solid ${theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(120,80,220,0.22)"}`,
-                background: phoneBg,
-                boxShadow: `
-                  0 0 0 1px ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"},
-                  0 0 36px ${colors.brand}40,
-                  0 16px 44px rgba(0,0,0,0.34)
-                `,
-                transform: `translate(${item.x}px, ${item.y}px)`,
-                flexShrink: 0,
-              }}
-            >
-              <Img
-                src={item.src}
-                style={{
-                  width: EACH_TABLET_W,
-                  height: EACH_TABLET_H,
-                  objectFit: "contain",
-                  objectPosition: "top center",
-                  display: "block",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  borderRadius: 14,
-                  boxShadow:
-                    theme === "dark"
-                      ? "inset 0 0 0 1px rgba(255,255,255,0.05)"
-                      : "inset 0 0 0 1px rgba(255,255,255,0.35)",
-                  pointerEvents: "none",
-                }}
-              />
-            </div>
-          ))}
+          <StoreTabletFrameLayers
+            layers={[
+              { src: tabletHomeworkSrc, opacity: tabletHomeworkLayerOpacity },
+              { src: tabletSubjectsSrc, opacity: tabletSubjectsLayerOpacity },
+            ]}
+            width={tabletW}
+            height={tabletH}
+            borderColor={phoneFrameBorder}
+            bgColor={phoneBg}
+          />
         </div>
 
-        {/* iPhone — full store_chat → shutter → crossfade to store_subjects */}
+        {/* iPhone — store_chat → shutter → store_subjects */}
         <div
           style={{
             position: "absolute",
             ...(isRtl ? { right: phoneEdge } : { left: phoneEdge }),
-            top: (height - PHONE_H) / 2,
-            width: PHONE_W,
-            height: PHONE_H,
+            top: (height - phoneH) / 2,
+            width: phoneW,
+            height: phoneH,
             transform: `translateY(${phoneY}px)`,
             opacity: phoneOpacity,
             borderRadius: 28,
@@ -698,8 +648,8 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
             <Img
               src={iosStoreChatSrc}
               style={{
-                width: PHONE_W,
-                height: PHONE_H,
+                width: phoneW,
+                height: phoneH,
                 objectFit: "cover",
                 objectPosition: "top",
                 display: "block",
@@ -722,8 +672,8 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
             <Img
               src={iosSubjectsSrc}
               style={{
-                width: PHONE_W,
-                height: PHONE_H,
+                width: phoneW,
+                height: phoneH,
                 objectFit: "cover",
                 objectPosition: "top",
                 display: "block",
@@ -862,7 +812,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
                 <circle cx="12" cy="13" r="4" stroke={colors.brand} strokeWidth="2"/>
               </svg>
             }
-            label="Snap"
+            label={s3Badge1}
             color={colors.textMain}
             bg={theme === "dark" ? `${colors.brand}20` : `${colors.brand}12`}
             border={`${colors.brand}55`}
@@ -876,7 +826,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
                   stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             }
-            label="Chat"
+            label={s3Badge2}
             color={colors.textMain}
             bg={theme === "dark" ? "rgba(59,130,246,0.15)" : "rgba(59,130,246,0.08)"}
             border="#3B82F655"
@@ -890,7 +840,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             }
-            label="Subjects"
+            label={s3Badge3}
             color={colors.textMain}
             bg={theme === "dark" ? "rgba(16,185,129,0.15)" : "rgba(16,185,129,0.08)"}
             border="#10B98155"

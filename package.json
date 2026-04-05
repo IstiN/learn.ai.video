@@ -6,9 +6,11 @@
   "scripts": {
     "sync:scene3": "bash scripts/sync-scene3-assets.sh",
     "sync:scene4": "bash scripts/sync-scene4-assets.sh",
+    "sync:scene6": "bash scripts/sync-scene6-assets.sh",
     "sync:scene7": "bash scripts/sync-scene7-assets.sh",
+    "sync:scene8": "bash scripts/sync-scene8-assets.sh",
     "sync:scene_listen": "bash scripts/sync-scene-listen-assets.sh",
-    "sync:store": "bash scripts/sync-scene3-assets.sh && bash scripts/sync-scene4-assets.sh && bash scripts/sync-scene7-assets.sh && bash scripts/sync-scene-listen-assets.sh",
+    "sync:store": "bash scripts/sync-scene3-assets.sh && bash scripts/sync-scene4-assets.sh && bash scripts/sync-scene6-assets.sh && bash scripts/sync-scene7-assets.sh && bash scripts/sync-scene8-assets.sh && bash scripts/sync-scene-listen-assets.sh",
     "start": "npx remotion studio src/index.ts",
     "render": "npx remotion render Scene1 out/scene1.mp4",
     "render:light": "npx remotion render Scene1 out/scene1-light.mp4 --props='{\"theme\":\"light\",\"locale\":\"en-US\"}'",

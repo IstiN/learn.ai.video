@@ -4,7 +4,7 @@
  * Story: Alex wonders if they really learned → AI creates practice problems
  *        from their own materials → Real understanding verified.
  *
- * Left:  store_solution_chat phone + tablet in one row (sync:scene4)
+ * Left:  phone + tablet crossfade — subject exams → topic tickets → test screen (Flutter store goldens, sync:scene6)
  * Right: Maya opens, then Alex, then Maya confirms
  * Badge: Practice · Verify · Grow
  */
@@ -26,8 +26,8 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
-import { StorePhoneFrame, StoreTabletFrame } from "../components/StoreDeviceFrames";
-import { scene56SolutionChatPath } from "../config/scene-assets";
+import { StorePhoneFrameLayers, StoreTabletFrameLayers } from "../components/StoreDeviceFrames";
+import { scene6VerificationStorePath } from "../config/scene-assets";
 
 const { fontFamily } = loadFont("normal", {
   weights: ["400", "600", "700", "800"],
@@ -249,8 +249,51 @@ export const Scene6Verification: React.FC<VideoProps> = ({ theme, locale }) => {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
   });
 
-  const iosChatSrc = staticFile(scene56SolutionChatPath("ios", theme, locale));
-  const tabletChatSrc = staticFile(scene56SolutionChatPath("tablet", theme, locale));
+  const fadeHalf = 0.5 * fps;
+  const tExamsToTopics = T.DIALOG_MAYA1;
+  const tTopicsToTest = T.CHECK_IN;
+
+  const opacityExams = interpolate(
+    frame,
+    [tExamsToTopics - fadeHalf, tExamsToTopics + fadeHalf],
+    [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const opacityTopics = (() => {
+    const rise = interpolate(
+      frame,
+      [tExamsToTopics - fadeHalf, tExamsToTopics + fadeHalf],
+      [0, 1],
+      { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    );
+    const fall = interpolate(
+      frame,
+      [tTopicsToTest - fadeHalf, tTopicsToTest + fadeHalf],
+      [1, 0],
+      { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    );
+    if (frame < tTopicsToTest - fadeHalf) {
+      return rise;
+    }
+    return Math.min(rise, fall);
+  })();
+  const opacityTest = interpolate(
+    frame,
+    [tTopicsToTest - fadeHalf, tTopicsToTest + fadeHalf],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+
+  const phoneLayers = [
+    { src: staticFile(scene6VerificationStorePath("exams", "ios", theme, locale)), opacity: opacityExams },
+    { src: staticFile(scene6VerificationStorePath("topics", "ios", theme, locale)), opacity: opacityTopics },
+    { src: staticFile(scene6VerificationStorePath("test", "ios", theme, locale)), opacity: opacityTest },
+  ];
+  const tabletLayers = [
+    { src: staticFile(scene6VerificationStorePath("exams", "tablet", theme, locale)), opacity: opacityExams },
+    { src: staticFile(scene6VerificationStorePath("topics", "tablet", theme, locale)), opacity: opacityTopics },
+    { src: staticFile(scene6VerificationStorePath("test", "tablet", theme, locale)), opacity: opacityTest },
+  ];
 
   const bgStyle: React.CSSProperties = theme === "dark"
     ? { background: "linear-gradient(140deg, #1a1c34 0%, #2a2d4a 50%, #1e2040 100%)" }
@@ -296,8 +339,8 @@ export const Scene6Verification: React.FC<VideoProps> = ({ theme, locale }) => {
           flexShrink: 0,
         }}>
           <div style={{ transform: `translateY(${phoneY}px)`, opacity: phoneOpacity }}>
-            <StorePhoneFrame
-              imgSrc={iosChatSrc}
+            <StorePhoneFrameLayers
+              layers={phoneLayers}
               width={phoneW}
               height={phoneH}
               borderColor={phoneFrameBorder}
@@ -305,8 +348,8 @@ export const Scene6Verification: React.FC<VideoProps> = ({ theme, locale }) => {
             />
           </div>
           <div style={{ transform: `translateX(${tabletX}px)`, opacity: tabletOpacity }}>
-            <StoreTabletFrame
-              imgSrc={tabletChatSrc}
+            <StoreTabletFrameLayers
+              layers={tabletLayers}
               width={tabletW}
               height={tabletH}
               borderColor={phoneFrameBorder}

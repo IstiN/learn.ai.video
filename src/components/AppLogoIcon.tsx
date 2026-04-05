@@ -6,7 +6,7 @@
  * All animations are driven by useCurrentFrame() — no CSS/SVG animate tags,
  * which would not render correctly in Remotion.
  */
-import React from "react";
+import React, { useId } from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 type Props = {
@@ -18,6 +18,7 @@ type Props = {
 export const AppLogoIcon: React.FC<Props> = ({ size, animated = true }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const uid = useId().replace(/:/g, "");
 
   // Slow continuous orbit rotation (one full orbit every 8s)
   const orbitAngle = animated
@@ -64,7 +65,7 @@ export const AppLogoIcon: React.FC<Props> = ({ size, animated = true }) => {
   const s3Scale = subjectScale(1.2);
   const s4Scale = subjectScale(1.8);
 
-  const gradId = `logoGrad_${size}`;
+  const gradId = `logoGrad_${size}_${uid}`;
 
   return (
     <svg

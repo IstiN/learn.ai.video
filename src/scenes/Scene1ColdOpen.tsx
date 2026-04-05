@@ -14,8 +14,20 @@ import { VideoProps } from "../types";
 import { themes } from "../themes";
 import { t } from "../i18n/translations";
 import { AppLogoIcon } from "../components/AppLogoIcon";
+import { CornerBrandLockup, FamilyLearnBrandMark } from "../components/FamilyLearnBrandMark";
 import { ProfileIcon, UserAvatarIcon } from "../components/AppIcons";
 import { MusicTrack } from "../components/MusicTrack";
+import {
+  BRAND_SCENE1_END_SCALE,
+  brandCornerCenterX,
+  brandCornerCenterY,
+} from "../config/brandCornerLayout";
+import {
+  scene1CornerLockupOpacity,
+  scene1FlyingLogoOpacityMultiplier,
+  scene1MoveToCornerEndFrames,
+  scene1MoveToCornerStartFrames,
+} from "../config/scene1BrandMotion";
 
 const { fontFamily } = loadFont("normal", {
   weights: ["400", "600", "700", "800"],
@@ -67,6 +79,8 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({ theme, locale }) => {
   const LINE2_START  = 1.8 * fps;
   const MAYA_START   = 3.8 * fps;
   const LOGO_START   = 5.2 * fps;
+  const MOVE_TO_CORNER_START = scene1MoveToCornerStartFrames(fps);
+  const MOVE_TO_CORNER_END = scene1MoveToCornerEndFrames(fps);
 
   // ── Animation helpers ──
   const entry = (start: number) =>
@@ -87,10 +101,27 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({ theme, locale }) => {
   const taglineOpacity = interpolate(frame, [LOGO_START + 0.6 * fps, LOGO_START + 1.2 * fps], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
   const taglineY       = interpolate(frame, [LOGO_START + 0.6 * fps, LOGO_START + 1.2 * fps], [20, 0], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
 
-  // ── Bubble style ──
-  const avatarFadeIn = (start: number) =>
-    interpolate(frame, [start, start + 0.5 * fps], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
+  const startCX = width / 2;
+  const startCY = height / 2;
+  const endCX = brandCornerCenterX(width, isRtl);
+  const endCY = brandCornerCenterY();
+  const brandCenterX = interpolate(frame, [MOVE_TO_CORNER_START, MOVE_TO_CORNER_END], [startCX, endCX], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const brandCenterY = interpolate(frame, [MOVE_TO_CORNER_START, MOVE_TO_CORNER_END], [startCY, endCY], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const blockScaleToCorner = interpolate(frame, [MOVE_TO_CORNER_START, MOVE_TO_CORNER_END], [1, BRAND_SCENE1_END_SCALE], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const taglineDuringMove = interpolate(
+    frame,
+    [MOVE_TO_CORNER_START, MOVE_TO_CORNER_START + 0.2 * fps],
+    [1, 0],
+    { extrapolateRight: "clamp", extrapolateLeft: "clamp" }
+  );
+  const brandScale = logoScale * blockScaleToCorner;
 
+  const flyingLogoOpacity =
+    logoOpacity * scene1FlyingLogoOpacityMultiplier(frame, fps);
+
+  const cornerLockupOpacity = scene1CornerLockupOpacity(frame, fps);
+
+  // ── Bubble style ──
   const bubble = (
     scale: number,
     opacity: number,
@@ -156,7 +187,7 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({ theme, locale }) => {
       {/* ── Alex Line 1 ── */}
       <div style={{ position: "absolute", top: LINE1_TOP, left: ALEX_LEFT, right: ALEX_RIGHT, display: "flex", alignItems: "flex-start", gap: 14, flexDirection: isRtl ? "row-reverse" : "row" }}>
         {/* White circle bg so the stroke avatar is visible */}
-        <div style={{ width: AVATAR_SIZE, height: AVATAR_SIZE, borderRadius: "50%", background: "white", border: `3px solid ${theme === "dark" ? "#e9631a" : "#f39c12"}`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", opacity: avatarFadeIn(LINE1_START) }}>
+        <div style={{ width: AVATAR_SIZE, height: AVATAR_SIZE, borderRadius: "50%", background: "white", border: `3px solid ${theme === "dark" ? "#e9631a" : "#f39c12"}`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", opacity: line1Opacity }}>
           <UserAvatarIcon size={38} color={theme === "dark" ? "#e9631a" : "#f39c12"} />
         </div>
         <div style={bubble(entry(LINE1_START), line1Opacity, isRtl ? "right" : "left", colors.bubbleAlex)}>
@@ -182,19 +213,34 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({ theme, locale }) => {
         </div>
       </div>
 
-      {/* ── Logo ── */}
-      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, opacity: logoOpacity, transform: `scale(${logoScale})` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 24, background: `linear-gradient(135deg, ${colors.brandDark}, #4F46E5)`, padding: "18px 48px 18px 28px", borderRadius: 28, boxShadow: `0 0 60px ${colors.brand}88, 0 0 120px ${colors.brand}44` }}>
-          {/* App icon — the real orbital logo from the app */}
-          <AppLogoIcon size={80} animated />
-          <span style={{ fontFamily, fontWeight: 800, fontSize: 64, color: "#ffffff", letterSpacing: "-1px", lineHeight: 1 }}>
-            FamilyLearn.AI
-          </span>
-        </div>
-        <div style={{ fontFamily, fontWeight: 400, fontSize: 30, color: colors.textMuted, letterSpacing: "0.4px", transform: `translateY(${taglineY}px)`, opacity: taglineOpacity, direction: dir, textAlign: "center", maxWidth: 860, padding: "0 40px" }}>
-          {t(locale, "s1_tagline")}
-        </div>
+      {/* ── Logo: flying hero; corner lockup is `GlobalBrandLogoOverlay` in FullVideo ── */}
+      <div
+        style={{
+          position: "absolute",
+          left: brandCenterX,
+          top: brandCenterY,
+          transform: `translate(-50%, -50%) scale(${brandScale})`,
+          opacity: flyingLogoOpacity,
+          filter: "drop-shadow(0 2px 14px rgba(0,0,0,0.12))",
+        }}
+      >
+        <FamilyLearnBrandMark
+          theme={theme}
+          locale={locale}
+          mode="hero"
+          animatedIcon
+          taglineOpacity={taglineOpacity * taglineDuringMove}
+          taglineTranslateY={taglineY}
+        />
       </div>
+
+      {/* Same timeline as flying hero; global overlay stays hidden until Scene 1 ends. */}
+      <CornerBrandLockup
+        theme={theme}
+        locale={locale}
+        opacity={cornerLockupOpacity}
+        zIndex={200}
+      />
     </AbsoluteFill>
   );
 };

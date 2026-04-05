@@ -4,8 +4,9 @@
  * in Remotion 4.0.443's stack-trace instrumentation.
  */
 import React from "react";
-import { AbsoluteFill, Sequence } from "remotion";
+import { AbsoluteFill, Sequence, useCurrentFrame } from "remotion";
 import { VideoProps } from "../types";
+import { GlobalBrandLogoOverlay } from "../components/GlobalBrandLogoOverlay";
 import { Scene1ColdOpen } from "./Scene1ColdOpen";
 import { Scene2DeviceMockup } from "./Scene2DeviceMockup";
 import { Scene3SmartSetup } from "./Scene3SmartSetup";
@@ -17,18 +18,33 @@ import { SceneListenLearn } from "./SceneListenLearn";
 import { Scene8TrackProgress } from "./Scene8TrackProgress";
 import { Scene9CTA } from "./Scene9CTA";
 import { MusicTrack } from "../components/MusicTrack";
+import {
+  FULL_VIDEO_TOTAL_FRAMES,
+  SCENE1_FRAMES,
+  SCENE2_FRAMES,
+  SCENE3_FRAMES,
+  SCENE4_FRAMES,
+  SCENE5_FRAMES,
+  SCENE6_FRAMES,
+  SCENE7_FRAMES,
+  SCENE_LL_FRAMES,
+  SCENE8_FRAMES,
+  SCENE9_FRAMES,
+} from "../config/videoTimeline";
 
-const FPS = 30;
-export const SCENE1_FRAMES = 9 * FPS;   //  9s — Cold Open       (audio: 8.81s)
-export const SCENE2_FRAMES = 17 * FPS;  // 17s — Meet FamilyLearn (audio: 16.09s)
-export const SCENE3_FRAMES = 16 * FPS;  // 16s — Smart Setup      (audio: 15.21s)
-export const SCENE4_FRAMES = 22 * FPS;  // 22s — Scan & Solve     (audio: 21.13s)
-export const SCENE5_FRAMES = 18 * FPS;  // 18s — AI Chat          (audio: 17.85s)
-export const SCENE6_FRAMES = 16 * FPS;  // 16s — Verification     (audio: 15.89s)
-export const SCENE7_FRAMES = 16 * FPS;  // 16s — Family Hub       (audio: 15.13s)
-export const SCENE_LL_FRAMES = 21 * FPS; // 21s — Listen & Learn  (audio: 20.89s)
-export const SCENE8_FRAMES = 11 * FPS;  // 11s — Track Progress   (audio: 10.89s)
-export const SCENE9_FRAMES = 15 * FPS;  // 15s — CTA              (audio: 14.01s)
+export {
+  FULL_VIDEO_TOTAL_FRAMES,
+  SCENE1_FRAMES,
+  SCENE2_FRAMES,
+  SCENE3_FRAMES,
+  SCENE4_FRAMES,
+  SCENE5_FRAMES,
+  SCENE6_FRAMES,
+  SCENE7_FRAMES,
+  SCENE_LL_FRAMES,
+  SCENE8_FRAMES,
+  SCENE9_FRAMES,
+} from "../config/videoTimeline";
 
 const S1 = 0;
 const S2 = S1 + SCENE1_FRAMES;
@@ -42,6 +58,9 @@ const S8 = SLL + SCENE_LL_FRAMES;
 const S9 = S8 + SCENE8_FRAMES;
 
 export const FullVideo: React.FC<VideoProps> = ({ theme, locale }) => {
+  /** Composition timeline at FullVideo root (overlay is 0 during Scene 1 — corner lives in Scene1ColdOpen). */
+  const compositionFrame = useCurrentFrame();
+
   return (
     <AbsoluteFill>
       {/* Continuous music across all scenes */}
@@ -86,6 +105,23 @@ export const FullVideo: React.FC<VideoProps> = ({ theme, locale }) => {
       <Sequence from={S9} durationInFrames={SCENE9_FRAMES}>
         <Scene9CTA theme={theme} locale={locale} />
       </Sequence>
+
+      {/* Full-frame stacking layer; corner logo uses compositionFrame from root (not nested Sequence). */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 8000,
+          pointerEvents: "none",
+          overflow: "visible",
+        }}
+      >
+        <GlobalBrandLogoOverlay
+          theme={theme}
+          locale={locale}
+          compositionFrame={compositionFrame}
+        />
+      </div>
     </AbsoluteFill>
   );
 };

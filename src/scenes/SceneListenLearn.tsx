@@ -34,6 +34,15 @@ const { fontFamily } = loadFont("normal", {
   subsets: ["latin"],
 });
 
+function parseSllDemoRow(raw: string): { title: string; duration: string; points: string } {
+  const p = raw.split("|").map((x) => x.trim());
+  return {
+    title: p[0] ?? "",
+    duration: p[1] ?? "",
+    points: p[2] ?? "",
+  };
+}
+
 const RTL_LOCALES = new Set(["ar", "he"]);
 
 // Offset: S1(9)+S2(16)+S3(14)+S4(14)+S5(14)+S6(10)+S7(12) = 89s
@@ -158,8 +167,8 @@ const Avatar: React.FC<{
 
 // Animated mini audio playlist widget
 const PlaylistWidget: React.FC<{
-  startFrame: number; colors: typeof themes["light"]; theme: "dark" | "light";
-}> = ({ startFrame, colors, theme }) => {
+  startFrame: number; colors: typeof themes["light"]; theme: "dark" | "light"; locale: string;
+}> = ({ startFrame, colors, theme, locale }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -168,9 +177,9 @@ const PlaylistWidget: React.FC<{
   });
 
   const tracks = [
-    { title: "Physics — Chapter 4", duration: "8 min", points: "+12 pts" },
-    { title: "Math — Quadratic Equations", duration: "11 min", points: "+18 pts" },
-    { title: "History — WWII Summary", duration: "6 min", points: "+10 pts" },
+    parseSllDemoRow(t(locale, "sll_demo_row1")),
+    parseSllDemoRow(t(locale, "sll_demo_row2")),
+    parseSllDemoRow(t(locale, "sll_demo_row3")),
   ];
 
   const rowBg = theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.9)";
@@ -196,9 +205,9 @@ const PlaylistWidget: React.FC<{
           <circle cx="6" cy="18" r="3" stroke={colors.brand} strokeWidth="2"/>
           <circle cx="18" cy="16" r="3" stroke={colors.brand} strokeWidth="2"/>
         </svg>
-        <span style={{ fontFamily, fontSize: 12, fontWeight: 700, color: colors.brand }}>Study Playlist</span>
+        <span style={{ fontFamily, fontSize: 12, fontWeight: 700, color: colors.brand }}>{t(locale, "sll_playlist_title")}</span>
         <span style={{ fontFamily, fontSize: 10, fontWeight: 500, color: colors.textMain, opacity: 0.5, marginLeft: "auto" }}>
-          3 tracks
+          {t(locale, "sll_playlist_tracks_label")}
         </span>
       </div>
       {tracks.map((track, i) => {
@@ -480,7 +489,7 @@ export const SceneListenLearn: React.FC<VideoProps> = ({ theme, locale }) => {
 
         {/* Playlist widget */}
         <div style={{ paddingLeft: isRtl ? 0 : avatarSize + 10, paddingRight: isRtl ? avatarSize + 10 : 0 }}>
-          <PlaylistWidget startFrame={T.PLAYLIST_IN} colors={colors} theme={theme} />
+          <PlaylistWidget startFrame={T.PLAYLIST_IN} colors={colors} theme={theme} locale={locale} />
         </div>
 
         {/* Alex line 2 */}

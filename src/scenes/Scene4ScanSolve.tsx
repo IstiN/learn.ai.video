@@ -18,7 +18,7 @@ import {
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
 import { themes, ThemeColors } from "../themes";
-import { t } from "../i18n/translations";
+import { badgeTriple, t } from "../i18n/translations";
 import { UserAvatarIcon, HomeworkIcon } from "../components/AppIcons";
 import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
@@ -478,6 +478,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({ theme, locale }) => {
   const colors = themes[theme];
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
+  const [s4Badge1, s4Badge2, s4Badge3] = badgeTriple(locale, "s4_badge");
 
   const BANNER_START = 0;
   const MAYA1_START = 3.0 * fps;
@@ -755,7 +756,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({ theme, locale }) => {
           marginTop: 8,
         }}>
           <StepBadge
-            label="Scan"
+            label={s4Badge1}
             icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 7V5a2 2 0 0 1 2-2h2M3 17v2a2 2 0 0 0 2 2h2M17 3h2a2 2 0 0 1 2 2v2M17 21h2a2 2 0 0 0 2-2v-2M7 12h10" stroke={colors.brand} strokeWidth="2" strokeLinecap="round"/></svg>}
             color={colors.textMain}
             bg={theme === "dark" ? `${colors.brand}20` : `${colors.brand}12`}
@@ -764,7 +765,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({ theme, locale }) => {
           />
           <Arrow color={colors.brandDark} startFrame={BADGE_START + 0.15 * fps} />
           <StepBadge
-            label="Organize"
+            label={s4Badge2}
             icon={<HomeworkIcon size={20} color={colors.brand} />}
             color={colors.textMain}
             bg={theme === "dark" ? "rgba(59,130,246,0.15)" : "rgba(59,130,246,0.08)"}
@@ -773,7 +774,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({ theme, locale }) => {
           />
           <Arrow color={colors.brandDark} startFrame={BADGE_START + 0.45 * fps} />
           <StepBadge
-            label="Learn"
+            label={s4Badge3}
             icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
             color={colors.textMain}
             bg={theme === "dark" ? "rgba(16,185,129,0.15)" : "rgba(16,185,129,0.08)"}
