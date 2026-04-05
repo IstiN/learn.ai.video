@@ -1,9 +1,13 @@
 /**
  * Paths relative to learn.ai.video/public/ (pass to staticFile()).
  *
+ * Before Studio/render: from learn.ai.video run `npm run sync:scene3` (copies Flutter goldens).
+ *
  * Sync sources (repo root):
  * - Scene 2 multidevice: flutter_app/test/goldens/store/en/multidevice_{dark,light}.png
- * - Scene 3 subjects: flutter_app/test/goldens/<lang>/{ios,tablet}/{dark,light}/store_subjects.png
+ * - Scene 3 chat (full phone): .../store_chat.png
+ * - Scene 3 subjects: .../store_subjects.png
+ * - Scene 3 homework (tablet split): .../store_homework.png
  */
 export const PUBLIC_ASSETS_BASE = "assets";
 
@@ -56,6 +60,26 @@ export function scene3SubjectsStorePath(
 ): string {
   const lang = goldenLocaleDir(locale);
   return `${PUBLIC_ASSETS_BASE}/scene3/${lang}/${platform}/${theme}/store_subjects.png`;
+}
+
+/** Full-screen Learn AI chat golden (schedule → subjects story). */
+export function scene3StoreChatPath(
+  platform: "ios" | "tablet",
+  theme: "dark" | "light",
+  locale: string,
+): string {
+  const lang = goldenLocaleDir(locale);
+  return `${PUBLIC_ASSETS_BASE}/scene3/${lang}/${platform}/${theme}/store_chat.png`;
+}
+
+/** Homework tab golden — used on tablet (split with subjects) in Scene 3. */
+export function scene3HomeworkStorePath(
+  platform: "ios" | "tablet",
+  theme: "dark" | "light",
+  locale: string,
+): string {
+  const lang = goldenLocaleDir(locale);
+  return `${PUBLIC_ASSETS_BASE}/scene3/${lang}/${platform}/${theme}/store_homework.png`;
 }
 
 export const scene2Multidevice = {

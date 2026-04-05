@@ -4,7 +4,8 @@
  * Story: User snaps a photo of their class schedule →
  *        FamilyLearn.AI chat reads it → subjects are created automatically.
  *
- * Left panel:  Tablet store_subjects golden (slides in) + iPhone store_subjects golden (slides up)
+ * Left panel:  full iPhone store_chat → shutter → store_subjects; two separate tablet frames
+ *              (homework + subjects goldens), staggered slide-in — no split-crop of one surface
  * Right panel: Alex/Maya dialog bubbles + animated chat UI typing effect
  * Bottom:      "Snap · Chat · Subjects" badge row
  */
@@ -27,7 +28,11 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
-import { scene3SubjectsStorePath } from "../config/scene-assets";
+import {
+  scene3HomeworkStorePath,
+  scene3StoreChatPath,
+  scene3SubjectsStorePath,
+} from "../config/scene-assets";
 
 const { fontFamily } = loadFont("normal", {
   weights: ["400", "600", "700", "800"],
@@ -107,6 +112,91 @@ const Avatar: React.FC<{
       opacity,
     }}>
       {children}
+    </div>
+  );
+};
+
+/** Brief shutter glare + camera icon over the phone (golden chat → “shot taken”). */
+const ShutterCameraOverlay: React.FC<{
+  shutterCenterFrame: number;
+  hideAfterFrame: number;
+  theme: "dark" | "light";
+}> = ({ shutterCenterFrame, hideAfterFrame, theme }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  if (frame < shutterCenterFrame - Math.round(0.12 * fps) || frame > hideAfterFrame) {
+    return null;
+  }
+  const pulse = spring({
+    frame: frame - shutterCenterFrame,
+    fps,
+    config: { damping: 11, stiffness: 280 },
+  });
+  const iconScale = interpolate(pulse, [0, 0.42, 1], [0.82, 1.12, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const glare = interpolate(
+    frame,
+    [shutterCenterFrame, shutterCenterFrame + 2, shutterCenterFrame + 12],
+    [0, theme === "dark" ? 0.4 : 0.52, 0],
+    { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
+  );
+  const iconOpacity = interpolate(
+    frame,
+    [shutterCenterFrame + Math.round(0.28 * fps), hideAfterFrame],
+    [1, 0],
+    { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
+  );
+  const stroke = theme === "dark" ? "#e8e8f0" : "#1e1b4b";
+  const lens = theme === "dark" ? "#a78bfa" : "#6d28d9";
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 4,
+        borderRadius: 18,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "#fff",
+          opacity: glare,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "40%",
+          transform: `translate(-50%, -50%) scale(${iconScale})`,
+          opacity: iconOpacity,
+          width: 76,
+          height: 76,
+          borderRadius: "50%",
+          background: theme === "dark" ? "rgba(28,30,52,0.94)" : "rgba(255,255,255,0.95)",
+          boxShadow: "0 12px 36px rgba(0,0,0,0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+            stroke={stroke}
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="12" cy="13" r="3.5" stroke={lens} strokeWidth="1.6" />
+        </svg>
+      </div>
     </div>
   );
 };
@@ -328,21 +418,6 @@ const Arrow: React.FC<{ color: string; startFrame: number }> = ({ color, startFr
   );
 };
 
-// ─── Camera flash overlay ─────────────────────────────────────────────────────
-const CameraFlash: React.FC<{ startFrame: number }> = ({ startFrame }) => {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [startFrame, startFrame + 3, startFrame + 10, startFrame + 18], [0, 1, 0.6, 0], {
-    extrapolateRight: "clamp", extrapolateLeft: "clamp",
-  });
-  if (opacity <= 0) return null;
-  return (
-    <div style={{
-      position: "absolute", inset: 0, background: "white",
-      opacity, zIndex: 10, pointerEvents: "none",
-    }} />
-  );
-};
-
 // ─── Main Scene ───────────────────────────────────────────────────────────────
 export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
   const frame = useCurrentFrame();
@@ -357,34 +432,108 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
   const PHONE_H = Math.round(height * 0.70);
   const PHONE_W = Math.round(PHONE_H * IOS_ASPECT);
 
-  // ── Tablet golden: 2732×2048 landscape ────────────────────────────────────
+  // ── Tablet goldens: 2732×2048 — two devices side by side in same width as one “large” tablet
   const TABLET_ASPECT = 2732 / 2048;
-  const TABLET_H = Math.round(height * 0.38);
-  const TABLET_W = Math.round(TABLET_H * TABLET_ASPECT);
+  const TABLET_STRIP_MAX_W = Math.round(height * 0.38 * TABLET_ASPECT);
+  const TABLET_PAIR_GAP = 12;
+  const EACH_TABLET_W = Math.floor((TABLET_STRIP_MAX_W - TABLET_PAIR_GAP) / 2);
+  const EACH_TABLET_H = Math.round(EACH_TABLET_W / TABLET_ASPECT);
 
   const iosSubjectsSrc = staticFile(scene3SubjectsStorePath("ios", theme, locale));
+  const iosStoreChatSrc = staticFile(scene3StoreChatPath("ios", theme, locale));
   const tabletSubjectsSrc = staticFile(scene3SubjectsStorePath("tablet", theme, locale));
+  const tabletHomeworkSrc = staticFile(scene3HomeworkStorePath("tablet", theme, locale));
+
+  /** After shutter: tablet subjects in + phone switches to subjects golden (VO / T.* unchanged). */
+  const AFTER_SHOT = T.CHAT_FLASH + Math.round(0.52 * fps);
+  const CAMERA_HIDE = AFTER_SHOT + Math.round(0.38 * fps);
 
   // ── Layout ─────────────────────────────────────────────────────────────────
   const LEFT_GAP = 28;
-  const LEFT_W = TABLET_W + PHONE_W + LEFT_GAP;
+  const LEFT_W = TABLET_STRIP_MAX_W + PHONE_W + LEFT_GAP;
   const RIGHT_W = width - LEFT_W - 80;
 
   const leftStart = isRtl ? width - LEFT_W - 20 : 20;
   const rightStart = isRtl ? 20 : LEFT_W + 60;
 
-  // ── Banner slide-in ────────────────────────────────────────────────────────
-  const bannerSpring = spring({ frame: frame - T.BANNER_IN, fps, config: { damping: 18, stiffness: 100 } });
-  const bannerX = interpolate(bannerSpring, [0, 1], [isRtl ? 140 : -140, 0]);
+  const centerPhoneX = (LEFT_W - PHONE_W) / 2;
+
+  // ── Banner (right panel label only) ───────────────────────────────────────
   const bannerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
   });
 
-  // ── Phone slide-up ────────────────────────────────────────────────────────
-  const phoneSpring = spring({ frame: frame - T.PHONE_IN, fps, config: { damping: 16, stiffness: 110 } });
-  const phoneY = interpolate(phoneSpring, [0, 1], [120, 0]);
-  const phoneOpacity = interpolate(frame, [T.PHONE_IN, T.PHONE_IN + 0.7 * fps], [0, 1], {
-    extrapolateRight: "clamp", extrapolateLeft: "clamp",
+  // ── Phone: enters on banner beat; then shifts right when tablet appears ───
+  const phoneEnterSpring = spring({ frame: frame - T.BANNER_IN, fps, config: { damping: 16, stiffness: 105 } });
+  const phoneY = interpolate(phoneEnterSpring, [0, 1], [110, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const phoneOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.65 * fps], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const layoutSpring = spring({
+    frame: frame - AFTER_SHOT,
+    fps,
+    config: { damping: 17, stiffness: 118 },
+  });
+  const phoneEdge = interpolate(
+    layoutSpring,
+    [0, 1],
+    [centerPhoneX, TABLET_STRIP_MAX_W + LEFT_GAP],
+    { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
+  );
+
+  const tabletHwSpring = spring({
+    frame: frame - AFTER_SHOT,
+    fps,
+    config: { damping: 16, stiffness: 128 },
+  });
+  const tabletSubSpring = spring({
+    frame: frame - AFTER_SHOT - Math.round(0.14 * fps),
+    fps,
+    config: { damping: 16, stiffness: 128 },
+  });
+  const hwTabletX = interpolate(tabletHwSpring, [0, 1], [isRtl ? 22 : -26, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const hwTabletY = interpolate(tabletHwSpring, [0, 1], [14, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const subTabletX = interpolate(tabletSubSpring, [0, 1], [isRtl ? -22 : 26, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const subTabletY = interpolate(tabletSubSpring, [0, 1], [18, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const tabletSlideX = interpolate(
+    layoutSpring,
+    [0, 1],
+    [isRtl ? 44 : -52, 0],
+    { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
+  );
+  const tabletOpacity = interpolate(
+    layoutSpring,
+    [0, 0.18, 0.5, 1],
+    [0, 0.9, 1, 1],
+    { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
+  );
+
+  const crossA = AFTER_SHOT - Math.round(0.08 * fps);
+  const crossB = AFTER_SHOT + Math.round(0.22 * fps);
+  const chatGoldenOpacity = interpolate(frame, [crossA, crossB], [1, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+  const subjectsPhoneOpacity = interpolate(frame, [crossA, crossB], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
   });
 
   // ── Background ────────────────────────────────────────────────────────────
@@ -401,9 +550,6 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
 
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
-      {/* Camera flash at banner entry */}
-      <CameraFlash startFrame={T.BANNER_IN + 4} />
-
       {/* Background music — offset past Scene 1 + 2 */}
       <MusicTrack offsetFrames={SCENE_OFFSET_S * 30} volume={0.35} />
       {audioSrc && <Audio src={staticFile(audioSrc)} volume={1} />}
@@ -424,95 +570,179 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
         opacity: theme === "dark" ? 0.06 : 0.04, filter: "blur(80px)",
       }} />
 
-      {/* ── Left panel: banner + phone ── */}
-      <div style={{
-        position: "absolute",
-        left: isRtl ? undefined : leftStart,
-        right: isRtl ? width - leftStart - LEFT_W : undefined,
-        top: 0, width: LEFT_W, height,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        gap: LEFT_GAP,
-        flexDirection: isRtl ? "row-reverse" : "row",
-      }}>
-        {/* Tablet — store subjects golden (landscape) */}
-        <div style={{
-          transform: `translateX(${bannerX}px)`,
-          opacity: bannerOpacity,
-          flexShrink: 0,
-          position: "relative",
-          width: TABLET_W,
-          height: TABLET_H,
-          borderRadius: 20,
-          overflow: "hidden",
-          border: `2px solid ${theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(120,80,220,0.22)"}`,
-          boxShadow: `
-            0 0 0 1px ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"},
-            0 0 48px ${colors.brand}44,
-            0 20px 56px rgba(0,0,0,0.38)
-          `,
-        }}>
-          <Img
-            src={tabletSubjectsSrc}
-            style={{
-              width: TABLET_W,
-              height: TABLET_H,
-              objectFit: "cover",
-              objectPosition: "center",
-              display: "block",
-            }}
-          />
-          <div style={{
+      {/* ── Left: store_chat phone → shutter → subjects; two tablet mockups (homework + subjects) ── */}
+      <div
+        style={{
+          position: "absolute",
+          left: isRtl ? undefined : leftStart,
+          right: isRtl ? width - leftStart - LEFT_W : undefined,
+          top: 0,
+          width: LEFT_W,
+          height,
+        }}
+      >
+        {/* Two separate tablet frames (full golden each) — staggered motion, no half-crop */}
+        <div
+          style={{
             position: "absolute",
-            inset: 0,
-            borderRadius: 18,
-            boxShadow: theme === "dark"
-              ? "inset 0 0 0 1px rgba(255,255,255,0.04)"
-              : "inset 0 0 0 1px rgba(255,255,255,0.35)",
+            left: isRtl ? undefined : 0,
+            right: isRtl ? 0 : undefined,
+            top: (height - EACH_TABLET_H) / 2,
+            width: TABLET_STRIP_MAX_W,
+            height: EACH_TABLET_H,
+            opacity: tabletOpacity,
+            transform: `translateX(${tabletSlideX}px)`,
+            display: "flex",
+            flexDirection: isRtl ? "row-reverse" : "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            gap: TABLET_PAIR_GAP,
             pointerEvents: "none",
-          }} />
-          <div style={{
-            position: "absolute",
-            top: 0, right: 0, bottom: 0,
-            width: "22%",
-            background: theme === "dark"
-              ? "linear-gradient(to right, transparent, #1a1c34)"
-              : "linear-gradient(to right, transparent, #f0f4ff)",
-            pointerEvents: "none",
-          }} />
+          }}
+        >
+          {(
+            [
+              { src: tabletHomeworkSrc, x: hwTabletX, y: hwTabletY },
+              { src: tabletSubjectsSrc, x: subTabletX, y: subTabletY },
+            ] as const
+          ).map((item, idx) => (
+            <div
+              key={idx}
+              style={{
+                position: "relative",
+                width: EACH_TABLET_W,
+                height: EACH_TABLET_H,
+                borderRadius: 16,
+                overflow: "hidden",
+                border: `2px solid ${theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(120,80,220,0.22)"}`,
+                background: phoneBg,
+                boxShadow: `
+                  0 0 0 1px ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"},
+                  0 0 36px ${colors.brand}40,
+                  0 16px 44px rgba(0,0,0,0.34)
+                `,
+                transform: `translate(${item.x}px, ${item.y}px)`,
+                flexShrink: 0,
+              }}
+            >
+              <Img
+                src={item.src}
+                style={{
+                  width: EACH_TABLET_W,
+                  height: EACH_TABLET_H,
+                  objectFit: "contain",
+                  objectPosition: "top center",
+                  display: "block",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: 14,
+                  boxShadow:
+                    theme === "dark"
+                      ? "inset 0 0 0 1px rgba(255,255,255,0.05)"
+                      : "inset 0 0 0 1px rgba(255,255,255,0.35)",
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
+          ))}
         </div>
 
-        {/* iPhone — store subjects golden */}
-        <div style={{
-          transform: `translateY(${phoneY}px)`,
-          opacity: phoneOpacity,
-          borderRadius: 28, overflow: "hidden",
-          border: `2px solid ${phoneFrameBorder}`,
-          background: phoneBg, flexShrink: 0,
-          boxShadow: `
+        {/* iPhone — full store_chat → shutter → crossfade to store_subjects */}
+        <div
+          style={{
+            position: "absolute",
+            ...(isRtl ? { right: phoneEdge } : { left: phoneEdge }),
+            top: (height - PHONE_H) / 2,
+            width: PHONE_W,
+            height: PHONE_H,
+            transform: `translateY(${phoneY}px)`,
+            opacity: phoneOpacity,
+            borderRadius: 28,
+            overflow: "hidden",
+            border: `2px solid ${phoneFrameBorder}`,
+            background: phoneBg,
+            zIndex: 3,
+            boxShadow: `
             0 0 0 1px ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"},
             0 0 40px ${colors.brand}38,
             0 24px 64px rgba(0,0,0,0.42)
           `,
-          position: "relative",
-        }}>
-          <div style={{
-            position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-            width: 90, height: 24, background: phoneBg,
-            borderBottomLeftRadius: 14, borderBottomRightRadius: 14, zIndex: 3,
-          }} />
-          <Img
-            src={iosSubjectsSrc}
-            style={{ width: PHONE_W, height: PHONE_H, objectFit: "cover", objectPosition: "top", display: "block" }}
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 90,
+              height: 24,
+              background: phoneBg,
+              borderBottomLeftRadius: 14,
+              borderBottomRightRadius: 14,
+              zIndex: 6,
+            }}
           />
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: 26,
-            boxShadow: theme === "dark"
-              ? "inset 0 0 0 1px rgba(255,255,255,0.05)"
-              : "inset 0 0 0 1px rgba(255,255,255,0.4)",
-            pointerEvents: "none",
-          }} />
+          {/* Phase 1: full golden chat (schedule photo storyline) */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: chatGoldenOpacity,
+            }}
+          >
+            <Img
+              src={iosStoreChatSrc}
+              style={{
+                width: PHONE_W,
+                height: PHONE_H,
+                objectFit: "cover",
+                objectPosition: "top",
+                display: "block",
+              }}
+            />
+            <ShutterCameraOverlay
+              shutterCenterFrame={T.CHAT_FLASH}
+              hideAfterFrame={CAMERA_HIDE}
+              theme={theme}
+            />
+          </div>
+          {/* Phase 2: subjects list golden */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: subjectsPhoneOpacity,
+            }}
+          >
+            <Img
+              src={iosSubjectsSrc}
+              style={{
+                width: PHONE_W,
+                height: PHONE_H,
+                objectFit: "cover",
+                objectPosition: "top",
+                display: "block",
+              }}
+            />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: 26,
+              boxShadow:
+                theme === "dark"
+                  ? "inset 0 0 0 1px rgba(255,255,255,0.05)"
+                  : "inset 0 0 0 1px rgba(255,255,255,0.4)",
+              pointerEvents: "none",
+              zIndex: 5,
+            }}
+          />
         </div>
       </div>
 

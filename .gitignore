@@ -35,3 +35,6 @@ npm-debug.log*
 
 # Generated output scripts
 output/
+
+# Scene 3 store PNGs (~280MB); run: npm run sync:scene3
+public/assets/scene3/
