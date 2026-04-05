@@ -31,9 +31,6 @@ npm-debug.log*
 # Remotion cache
 .remotion/
 
-# Local agent/IDE config
-.agents/
-.claude/
 
 # Generated output scripts
 output/
