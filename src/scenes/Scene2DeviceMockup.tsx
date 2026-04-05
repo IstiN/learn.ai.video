@@ -17,6 +17,7 @@ import { t } from "../i18n/translations";
 import { AppLogoIcon } from "../components/AppLogoIcon";
 import { UserAvatarIcon } from "../components/AppIcons";
 import { MusicTrack } from "../components/MusicTrack";
+import { scene2MultidevicePath } from "../config/scene-assets";
 
 const { fontFamily } = loadFont("normal", {
   weights: ["400", "600", "700", "800"],
@@ -231,7 +232,15 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const audioSrc = getSceneAudio(locale, "scene2");
-  const { fps, width, height } = useVideoConfig();
+  const { fps, width, height, durationInFrames } = useVideoConfig();
+  const lastFrame = durationInFrames - 1;
+  const exitFadeFrames = 0.55 * fps;
+  const sceneEndFade = interpolate(
+    frame,
+    [lastFrame - exitFadeFrames, lastFrame],
+    [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
   const colors = themes[theme];
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
@@ -245,7 +254,7 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
   const BADGE3_START  = 5.4 * fps;
   const ALEX_START    = 7.5 * fps;
   const MAYA2_START   = 11.0 * fps;
-  const SCENE_FRAMES  = 16 * fps; // matches voiceover duration (15.37s)
+  const SCENE_FRAMES  = 16 * fps; // dialogue pacing vs ~16s VO (composition may be longer)
 
   // ── Mockup animation ─────────────────────────────────────────────────────
   const mockupSpring = spring({
@@ -268,9 +277,9 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
       : { background: "linear-gradient(140deg, #f0f4ff 0%, #f6f8ff 50%, #ede8ff 100%)" };
 
   // Layout: image left (~55%), dialog right — flip for RTL
-  // Dashboard image is 1376×768 → aspect ratio 1.792
+  // Store multidevice goldens: 2560×1440 (flutter_app/test/goldens/store/en/multidevice_*.png)
   // Cap chrome width so dialog panel has enough room
-  const IMG_ASPECT = 1376 / 768;
+  const IMG_ASPECT = 2560 / 1440;
   const TITLE_BAR_H = 42;
   const CHROME_W = Math.round(width * 0.44);   // ~845px — leaves clear gap before dialog
   const SCREENSHOT_H = Math.round(CHROME_W / IMG_ASPECT);
@@ -287,10 +296,19 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
 
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
+      {/* Voiceover – full volume (not affected by scene exit fade) */}
+      {audioSrc && <Audio src={staticFile(audioSrc)} volume={1} />}
+
+      {/* Foreground only — gradient stays on AbsoluteFill so the backdrop does not black out */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: sceneEndFade,
+        }}
+      >
       {/* Background music — offset to 9s (Scene 1 duration) for standalone preview */}
       <MusicTrack offsetFrames={9 * 30} volume={0.35} />
-      {/* Voiceover – full volume */}
-      {audioSrc && <Audio src={staticFile(audioSrc)} volume={1} />}
 
       {/* Subtle grid */}
       <div
@@ -397,7 +415,7 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
                 <path d="M3 5V3.5a2.5 2.5 0 0 1 5 0V5" stroke={theme === "dark" ? "#fff" : "#333"} strokeWidth="1.2" fill="none"/>
               </svg>
               <span style={{ fontFamily: "monospace", fontSize: 11, color: theme === "dark" ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.45)", letterSpacing: "0.2px" }}>
-                learn.ai-native.pro
+                FamilyLearn.AI
               </span>
             </div>
           </div>
@@ -405,7 +423,7 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
           {/* Screenshot — fills the exact remaining space, no cropping */}
           <div style={{ width: CHROME_W, height: SCREENSHOT_H, flexShrink: 0, position: "relative" }}>
             <Img
-              src={staticFile("assets/web_family_dashboard.png")}
+              src={staticFile(scene2MultidevicePath(theme))}
               style={{ width: "100%", height: "100%", objectFit: "fill", display: "block" }}
             />
             {/* Right-edge fade so dialog panel overlaps cleanly */}
@@ -459,7 +477,7 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
             bg={colors.bubbleMaya}
             borderColor={`${colors.brand}33`}
             startFrame={MAYA1_START}
-            endFrame={SCENE_FRAMES + 10}
+            endFrame={lastFrame}
             fontSize={28}
             dir={dir}
           />
@@ -515,7 +533,7 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
             bg={colors.bubbleAlex}
             borderColor={`${colors.brand}33`}
             startFrame={ALEX_START}
-            endFrame={SCENE_FRAMES + 10}
+            endFrame={lastFrame}
             fontSize={28}
             dir={dir}
           />
@@ -533,11 +551,12 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
             bg={colors.bubbleMaya}
             borderColor={`${colors.brand}33`}
             startFrame={MAYA2_START}
-            endFrame={SCENE_FRAMES + 10}
+            endFrame={lastFrame}
             fontSize={28}
             dir={dir}
           />
         </div>
+      </div>
       </div>
     </AbsoluteFill>
   );

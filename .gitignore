@@ -31,6 +31,7 @@ npm-debug.log*
 # Remotion cache
 .remotion/
 
+.factory/
 
 # Generated output scripts
 output/

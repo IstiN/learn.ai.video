@@ -1,11 +1,10 @@
 /**
- * Scene 3 — Smart Schedule Setup (14s)
+ * Scene 3 — Smart Schedule Setup
  *
  * Story: User snaps a photo of their class schedule →
  *        FamilyLearn.AI chat reads it → subjects are created automatically.
  *
- * Left panel:  "4_organize_your_study.png" story banner (slides in from left)
- *              + en_store_subjects_6_7.png phone (slides up, reveals after chat)
+ * Left panel:  Tablet store_subjects golden (slides in) + iPhone store_subjects golden (slides up)
  * Right panel: Alex/Maya dialog bubbles + animated chat UI typing effect
  * Bottom:      "Snap · Chat · Subjects" badge row
  */
@@ -28,6 +27,7 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
+import { scene3SubjectsStorePath } from "../config/scene-assets";
 
 const { fontFamily } = loadFont("normal", {
   weights: ["400", "600", "700", "800"],
@@ -352,18 +352,22 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
 
-  // ── Phone sizing (portrait 1242×2688 ~0.462 aspect) ──────────────────────
+  // ── iPhone golden: 1284×2778 (store_subjects) ─────────────────────────────
+  const IOS_ASPECT = 1284 / 2778;
   const PHONE_H = Math.round(height * 0.70);
-  const PHONE_W = Math.round(PHONE_H * (1242 / 2688));
+  const PHONE_W = Math.round(PHONE_H * IOS_ASPECT);
 
-  // ── Schedule illustration sizing (2048×2048 square) ──────────────────────
-  // Show top ~75% of the image (the hexagonal illustration, skip text below)
-  const SCHED_SIDE = Math.round(height * 0.62);   // square container width
-  const SCHED_CROP = Math.round(SCHED_SIDE * 0.78); // height shows ~78% of square
+  // ── Tablet golden: 2732×2048 landscape ────────────────────────────────────
+  const TABLET_ASPECT = 2732 / 2048;
+  const TABLET_H = Math.round(height * 0.38);
+  const TABLET_W = Math.round(TABLET_H * TABLET_ASPECT);
+
+  const iosSubjectsSrc = staticFile(scene3SubjectsStorePath("ios", theme, locale));
+  const tabletSubjectsSrc = staticFile(scene3SubjectsStorePath("tablet", theme, locale));
 
   // ── Layout ─────────────────────────────────────────────────────────────────
   const LEFT_GAP = 28;
-  const LEFT_W = SCHED_SIDE + PHONE_W + LEFT_GAP;
+  const LEFT_W = TABLET_W + PHONE_W + LEFT_GAP;
   const RIGHT_W = width - LEFT_W - 80;
 
   const leftStart = isRtl ? width - LEFT_W - 20 : 20;
@@ -430,44 +434,46 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
         gap: LEFT_GAP,
         flexDirection: isRtl ? "row-reverse" : "row",
       }}>
-        {/* Onboarding schedule illustration — masked card */}
+        {/* Tablet — store subjects golden (landscape) */}
         <div style={{
           transform: `translateX(${bannerX}px)`,
           opacity: bannerOpacity,
           flexShrink: 0,
           position: "relative",
-          width: SCHED_SIDE,
-          height: SCHED_CROP,
-          borderRadius: 32,
+          width: TABLET_W,
+          height: TABLET_H,
+          borderRadius: 20,
           overflow: "hidden",
-          border: `2px solid ${theme === "dark" ? "rgba(120,80,220,0.35)" : "rgba(120,80,220,0.28)"}`,
-          boxShadow: `0 0 60px ${colors.brand}33, 0 24px 64px rgba(0,0,0,0.30)`,
+          border: `2px solid ${theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(120,80,220,0.22)"}`,
+          boxShadow: `
+            0 0 0 1px ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"},
+            0 0 48px ${colors.brand}44,
+            0 20px 56px rgba(0,0,0,0.38)
+          `,
         }}>
           <Img
-            src={staticFile("store_artefacts/onboarding_schedule.jpg")}
+            src={tabletSubjectsSrc}
             style={{
-              width: SCHED_SIDE,
-              height: SCHED_SIDE,
+              width: TABLET_W,
+              height: TABLET_H,
               objectFit: "cover",
-              objectPosition: "top center",
+              objectPosition: "center",
               display: "block",
             }}
           />
-          {/* Bottom fade — hides the text below the illustration */}
           <div style={{
             position: "absolute",
-            bottom: 0, left: 0, right: 0,
-            height: "32%",
-            background: theme === "dark"
-              ? "linear-gradient(to bottom, transparent, #1a1c34)"
-              : "linear-gradient(to bottom, transparent, #f0f4ff)",
+            inset: 0,
+            borderRadius: 18,
+            boxShadow: theme === "dark"
+              ? "inset 0 0 0 1px rgba(255,255,255,0.04)"
+              : "inset 0 0 0 1px rgba(255,255,255,0.35)",
             pointerEvents: "none",
           }} />
-          {/* Right edge fade — blends with the rest of the scene */}
           <div style={{
             position: "absolute",
             top: 0, right: 0, bottom: 0,
-            width: "18%",
+            width: "22%",
             background: theme === "dark"
               ? "linear-gradient(to right, transparent, #1a1c34)"
               : "linear-gradient(to right, transparent, #f0f4ff)",
@@ -475,26 +481,38 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({ theme, locale }) => {
           }} />
         </div>
 
-        {/* Phone: subjects screen */}
+        {/* iPhone — store subjects golden */}
         <div style={{
           transform: `translateY(${phoneY}px)`,
           opacity: phoneOpacity,
           borderRadius: 28, overflow: "hidden",
           border: `2px solid ${phoneFrameBorder}`,
           background: phoneBg, flexShrink: 0,
-          boxShadow: "0 24px 64px rgba(0,0,0,0.38)",
+          boxShadow: `
+            0 0 0 1px ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"},
+            0 0 40px ${colors.brand}38,
+            0 24px 64px rgba(0,0,0,0.42)
+          `,
           position: "relative",
         }}>
-          {/* Notch */}
           <div style={{
             position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
             width: 90, height: 24, background: phoneBg,
             borderBottomLeftRadius: 14, borderBottomRightRadius: 14, zIndex: 3,
           }} />
           <Img
-            src={staticFile("store_artefacts/ios/screenshots/en/en_store_subjects_6_7.png")}
+            src={iosSubjectsSrc}
             style={{ width: PHONE_W, height: PHONE_H, objectFit: "cover", objectPosition: "top", display: "block" }}
           />
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 26,
+            boxShadow: theme === "dark"
+              ? "inset 0 0 0 1px rgba(255,255,255,0.05)"
+              : "inset 0 0 0 1px rgba(255,255,255,0.4)",
+            pointerEvents: "none",
+          }} />
         </div>
       </div>
 
