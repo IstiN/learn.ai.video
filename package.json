@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "sync:scene3": "bash scripts/sync-scene3-assets.sh",
+    "sync:scene4": "bash scripts/sync-scene4-assets.sh",
+    "sync:store": "bash scripts/sync-scene3-assets.sh && bash scripts/sync-scene4-assets.sh",
     "start": "npx remotion studio src/index.ts",
     "render": "npx remotion render Scene1 out/scene1.mp4",
     "render:light": "npx remotion render Scene1 out/scene1-light.mp4 --props='{\"theme\":\"light\",\"locale\":\"en-US\"}'",

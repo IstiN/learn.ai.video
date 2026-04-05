@@ -38,3 +38,6 @@ output/
 
 # Scene 3 store PNGs (~280MB); run: npm run sync:scene3
 public/assets/scene3/
+
+# Scene 4 store_solution_chat copies; run: npm run sync:scene4
+public/assets/scene4/
