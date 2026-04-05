@@ -100,4 +100,3 @@ Speaker 1: Okay — I want this. Where do I get it?
 Speaker 2: Download FamilyLearn.AI free — from the App Store or Google Play. Over a thousand families are already learning smarter.
 Speaker 1: I'm in. Starting today.
 Speaker 2: Start learning smarter — today.
-

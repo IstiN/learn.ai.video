@@ -9,6 +9,9 @@
  * - Scene 3 subjects: .../store_subjects.png
  * - Scene 3 homework (tablet split): .../store_homework.png
  * - Scene 4 solution chat (phone + tablet): assets/scene4/.../store_solution_chat.png
+ * - Scene 5–6: same store_solution_chat (sync:scene4)
+ * - Scene 7 family: assets/scene7/.../store_family.png (sync:scene7)
+ * - Listen & Learn: assets/scene_listen/.../store_player_*.png, store_playlists.png (sync:scene_listen)
  */
 export const PUBLIC_ASSETS_BASE = "assets";
 
@@ -100,4 +103,40 @@ export function scene4SolutionChatPath(
 ): string {
   const lang = goldenLocaleDir(locale);
   return `${PUBLIC_ASSETS_BASE}/scene4/${lang}/${platform}/${theme}/store_solution_chat.png`;
+}
+
+/** Scenes 5–6 — same Flutter golden as Scene 4 (`npm run sync:scene4`). */
+export function scene56SolutionChatPath(
+  platform: "ios" | "tablet",
+  theme: "dark" | "light",
+  locale: string,
+): string {
+  return scene4SolutionChatPath(platform, theme, locale);
+}
+
+/** Scene 7 — `npm run sync:scene7`. */
+export function scene7FamilyStorePath(
+  platform: "ios" | "tablet",
+  theme: "dark" | "light",
+  locale: string,
+): string {
+  const lang = goldenLocaleDir(locale);
+  return `${PUBLIC_ASSETS_BASE}/scene7/${lang}/${platform}/${theme}/store_family.png`;
+}
+
+export type SceneListenStoreFile =
+  | "store_player_main.png"
+  | "store_player_transcript.png"
+  | "store_player_playlist.png"
+  | "store_playlists.png";
+
+/** Listen & Learn — `npm run sync:scene_listen`. */
+export function sceneListenStorePath(
+  file: SceneListenStoreFile,
+  platform: "ios" | "tablet",
+  theme: "dark" | "light",
+  locale: string,
+): string {
+  const lang = goldenLocaleDir(locale);
+  return `${PUBLIC_ASSETS_BASE}/scene_listen/${lang}/${platform}/${theme}/${file}`;
 }

@@ -4,20 +4,21 @@
  * Story: Alex is stuck on a topic → asks FamilyLearn.AI chat →
  *        gets step-by-step explanation, available 24/7.
  *
- * Left:  1_your_personal_ai_tutor.png banner + en_store_chat_6_7.png phone
+ * Left:  store_solution_chat phone + tablet in one row (sync:scene4)
  * Right: Alex/Maya dialog + animated "typing then answer" chat demo
  * Badge: Ask · Explain · Understand
  */
 import React from "react";
 import {
   AbsoluteFill,
-  Img,
   interpolate,
   spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { StorePhoneFrame, StoreTabletFrame } from "../components/StoreDeviceFrames";
+import { scene56SolutionChatPath } from "../config/scene-assets";
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
 import { themes, ThemeColors } from "../themes";
@@ -44,6 +45,7 @@ const T = {
   DIALOG_MAYA1: Math.round(3.5 * 30),
   CHAT_IN:      Math.round(5.5 * 30),
   PHONE_IN:     Math.round(5.8 * 30),
+  TABLET_IN:    Math.round(6.35 * 30),
   DIALOG_ALEX2: Math.round(9.0 * 30),
   DIALOG_MAYA2: Math.round(11.0 * 30),
   BADGE_IN:     Math.round(12.5 * 30),
@@ -283,31 +285,54 @@ export const Scene5AiChat: React.FC<VideoProps> = ({ theme, locale }) => {
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
 
-  const PHONE_H = Math.round(height * 0.78);
-  const PHONE_W = Math.round(PHONE_H * (1242 / 2688));
-  const BANNER_H = Math.round(height * 0.80);
-  const BANNER_W = Math.round(BANNER_H * (388 / 839));
+  const TABLET_ASPECT = 2732 / 2048;
+  const IOS_ASPECT = 1284 / 2778;
+  const COL_GAP = 28;
+  const LEFT_PAD = 40;
 
-  const LEFT_GAP = 32;
-  const LEFT_W = BANNER_W + PHONE_W + LEFT_GAP;
+  let rowH = Math.round(height * 0.72);
+  let phoneH = rowH;
+  let phoneW = Math.round(phoneH * IOS_ASPECT);
+  let tabletH = rowH;
+  let tabletW = Math.round(tabletH * TABLET_ASPECT);
+  let rowW = phoneW + COL_GAP + tabletW;
+  const maxRowW = Math.round(width * 0.5);
+  if (rowW > maxRowW) {
+    const s = maxRowW / rowW;
+    rowH = Math.round(rowH * s);
+    phoneH = rowH;
+    phoneW = Math.round(phoneH * IOS_ASPECT);
+    tabletH = rowH;
+    tabletW = Math.round(tabletH * TABLET_ASPECT);
+    rowW = phoneW + COL_GAP + tabletW;
+  }
+
+  const LEFT_W = rowW + LEFT_PAD;
   const RIGHT_W = width - LEFT_W - 80;
 
   const leftStart = isRtl ? width - LEFT_W - 20 : 20;
   const rightStart = isRtl ? 20 : LEFT_W + 60;
 
-  // Banner
-  const bannerSpring = spring({ frame: frame - T.BANNER_IN, fps, config: { damping: 18, stiffness: 100 } });
-  const bannerX = interpolate(bannerSpring, [0, 1], [isRtl ? 140 : -140, 0]);
-  const bannerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
+  const headerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
   });
 
-  // Phone
   const phoneSpring = spring({ frame: frame - T.PHONE_IN, fps, config: { damping: 16, stiffness: 110 } });
   const phoneY = interpolate(phoneSpring, [0, 1], [120, 0]);
   const phoneOpacity = interpolate(frame, [T.PHONE_IN, T.PHONE_IN + 0.7 * fps], [0, 1], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
   });
+
+  const tabletSpring = spring({ frame: frame - T.TABLET_IN, fps, config: { damping: 16, stiffness: 110 } });
+  const tabletX = interpolate(tabletSpring, [0, 1], [isRtl ? -56 : 56, 0], {
+    extrapolateRight: "clamp", extrapolateLeft: "clamp",
+  });
+  const tabletOpacity = interpolate(frame, [T.TABLET_IN, T.TABLET_IN + 0.65 * fps], [0, 1], {
+    extrapolateRight: "clamp", extrapolateLeft: "clamp",
+  });
+
+  const iosChatSrc = staticFile(scene56SolutionChatPath("ios", theme, locale));
+  const tabletChatSrc = staticFile(scene56SolutionChatPath("tablet", theme, locale));
 
   const bgStyle: React.CSSProperties = theme === "dark"
     ? { background: "linear-gradient(140deg, #1a1c34 0%, #2a2d4a 50%, #1e2040 100%)" }
@@ -318,8 +343,6 @@ export const Scene5AiChat: React.FC<VideoProps> = ({ theme, locale }) => {
   const avatarGradientAlex = "linear-gradient(135deg, #e9631a, #c0392b)";
   const avatarGradientMaya = `linear-gradient(135deg, ${colors.brandDark}, #3B82F6)`;
   const avatarSize = 52;
-
-  const { fps: FPS } = useVideoConfig();
 
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
@@ -342,43 +365,41 @@ export const Scene5AiChat: React.FC<VideoProps> = ({ theme, locale }) => {
         opacity: theme === "dark" ? 0.06 : 0.04, filter: "blur(80px)",
       }} />
 
-      {/* Left: banner + phone */}
+      {/* Left: phone | tablet */}
       <div style={{
         position: "absolute",
         left: isRtl ? undefined : leftStart,
         right: isRtl ? width - leftStart - LEFT_W : undefined,
         top: 0, width: LEFT_W, height,
         display: "flex", alignItems: "center", justifyContent: "center",
-        gap: LEFT_GAP, flexDirection: isRtl ? "row-reverse" : "row",
       }}>
         <div style={{
-          transform: `translateX(${bannerX}px)`, opacity: bannerOpacity,
-          borderRadius: 20, overflow: "hidden",
-          border: `2px solid ${phoneFrameBorder}`,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.32)", flexShrink: 0,
+          display: "flex", flexDirection: isRtl ? "row-reverse" : "row",
+          alignItems: "center",
+          gap: COL_GAP,
+          flexShrink: 0,
         }}>
-          <Img
-            src={staticFile("store_artefacts/story/output/GooglePlay/1_your_personal_ai_tutor.png")}
-            style={{ width: BANNER_W, height: BANNER_H, objectFit: "cover", display: "block" }}
-          />
-        </div>
-
-        <div style={{
-          transform: `translateY(${phoneY}px)`, opacity: phoneOpacity,
-          borderRadius: 28, overflow: "hidden",
-          border: `2px solid ${phoneFrameBorder}`,
-          background: phoneBg, flexShrink: 0,
-          boxShadow: "0 24px 64px rgba(0,0,0,0.38)", position: "relative",
-        }}>
+          <div style={{ transform: `translateY(${phoneY}px)`, opacity: phoneOpacity }}>
+            <StorePhoneFrame
+              imgSrc={iosChatSrc}
+              width={phoneW}
+              height={phoneH}
+              borderColor={phoneFrameBorder}
+              bgColor={phoneBg}
+            />
+          </div>
           <div style={{
-            position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-            width: 90, height: 24, background: phoneBg,
-            borderBottomLeftRadius: 14, borderBottomRightRadius: 14, zIndex: 3,
-          }} />
-          <Img
-            src={staticFile("store_artefacts/ios/screenshots/en/en_store_chat_6_7.png")}
-            style={{ width: PHONE_W, height: PHONE_H, objectFit: "cover", objectPosition: "top", display: "block" }}
-          />
+            transform: `translateX(${tabletX}px)`,
+            opacity: tabletOpacity,
+          }}>
+            <StoreTabletFrame
+              imgSrc={tabletChatSrc}
+              width={tabletW}
+              height={tabletH}
+              borderColor={phoneFrameBorder}
+              bgColor={phoneBg}
+            />
+          </div>
         </div>
       </div>
 
@@ -394,7 +415,7 @@ export const Scene5AiChat: React.FC<VideoProps> = ({ theme, locale }) => {
         {/* Scene label */}
         <div style={{
           display: "flex", alignItems: "center", gap: 10,
-          opacity: bannerOpacity,
+          opacity: headerOpacity,
           flexDirection: isRtl ? "row-reverse" : "row",
         }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">

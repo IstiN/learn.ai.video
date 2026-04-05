@@ -41,3 +41,9 @@ public/assets/scene3/
 
 # Scene 4 store_solution_chat copies; run: npm run sync:scene4
 public/assets/scene4/
+
+# Scene 7 store_family; run: npm run sync:scene7
+public/assets/scene7/
+
+# Listen & Learn store_player_* + store_playlists; run: npm run sync:scene_listen
+public/assets/scene_listen/

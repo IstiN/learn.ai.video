@@ -4,7 +4,7 @@
  * Story: Alex discovers audio playlists for commuting →
  *        Maya explains earning Learn Points → gamified progress unlocked.
  *
- * Left:  5_listen___learn_podcasts.png banner + en_store_summary_6_7.png phone
+ * Left:  store_player_* cycling in sync on phone + tablet (same step; crossfaded; sync:scene_listen)
  * Right: Alex asks → Maya explains → mini playlist widget → points badge
  * Badge: Listen · Points · Level Up
  */
@@ -27,6 +27,7 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
+import { sceneListenStorePath, type SceneListenStoreFile } from "../config/scene-assets";
 
 const { fontFamily } = loadFont("normal", {
   weights: ["400", "600", "700", "800"],
@@ -39,9 +40,68 @@ const RTL_LOCALES = new Set(["ar", "he"]);
 // This scene is inserted between Scene7FamilyHub and Scene8TrackProgress
 const SCENE_OFFSET_S = 114;
 
+const LISTEN_PLAYER_FILES: SceneListenStoreFile[] = [
+  "store_player_main.png",
+  "store_player_transcript.png",
+  "store_player_playlist.png",
+];
+
+const LISTEN_STEP_SEC = 2.75;
+
+/**
+ * Crossfade at segment boundaries so adjacent layers overlap (avoids blink at ~3s).
+ */
+function listenPlayerLayerOpacity(
+  frame: number,
+  start: number,
+  fps: number,
+  fileIndex: number,
+  stepSec: number,
+): number {
+  const stepLen = Math.max(12, Math.round(stepSec * fps));
+  const n = LISTEN_PLAYER_FILES.length;
+  const cycleLen = stepLen * n;
+  const t = frame - start;
+  if (t < 0) return 0;
+  const pos = t % cycleLen;
+  const fade = Math.min(
+    Math.max(8, Math.round(0.26 * fps)),
+    Math.max(4, Math.floor(stepLen / 3) - 1),
+  );
+
+  const A = fileIndex * stepLen;
+  const B = (fileIndex + 1) * stepLen;
+
+  if (pos > B || pos < A - fade) return 0;
+
+  if (fileIndex === 0 && pos < fade) {
+    return interpolate(pos, [0, fade], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+  }
+
+  if (pos < A) {
+    return interpolate(pos, [A - fade, A], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+  }
+
+  if (pos <= B - fade) {
+    return 1;
+  }
+
+  return interpolate(pos, [B - fade, B], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+}
+
 const T = {
   BANNER_IN:    0,
   PHONE_IN:     Math.round(0.5 * 30),
+  TABLET_IN:    Math.round(1.05 * 30),
   DIALOG_ALEX1: Math.round(1.2 * 30),
   DIALOG_MAYA1: Math.round(3.5 * 30),
   PLAYLIST_IN:  Math.round(5.2 * 30),
@@ -235,27 +295,49 @@ export const SceneListenLearn: React.FC<VideoProps> = ({ theme, locale }) => {
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
 
-  const PHONE_H = Math.round(height * 0.78);
-  const PHONE_W = Math.round(PHONE_H * (1242 / 2688));
-  const BANNER_H = Math.round(height * 0.80);
-  const BANNER_W = Math.round(BANNER_H * (388 / 839));
+  const TABLET_ASPECT = 2732 / 2048;
+  const IOS_ASPECT = 1284 / 2778;
+  const COL_GAP = 28;
+  const LEFT_PAD = 40;
 
-  const LEFT_GAP = 32;
-  const LEFT_W = BANNER_W + PHONE_W + LEFT_GAP;
+  let rowH = Math.round(height * 0.72);
+  let phoneH = rowH;
+  let phoneW = Math.round(phoneH * IOS_ASPECT);
+  let tabletH = rowH;
+  let tabletW = Math.round(tabletH * TABLET_ASPECT);
+  let rowW = phoneW + COL_GAP + tabletW;
+  const maxRowW = Math.round(width * 0.5);
+  if (rowW > maxRowW) {
+    const s = maxRowW / rowW;
+    rowH = Math.round(rowH * s);
+    phoneH = rowH;
+    phoneW = Math.round(phoneH * IOS_ASPECT);
+    tabletH = rowH;
+    tabletW = Math.round(tabletH * TABLET_ASPECT);
+    rowW = phoneW + COL_GAP + tabletW;
+  }
+
+  const LEFT_W = rowW + LEFT_PAD;
   const RIGHT_W = width - LEFT_W - 80;
 
   const leftStart = isRtl ? width - LEFT_W - 20 : 20;
   const rightStart = isRtl ? 20 : LEFT_W + 60;
 
-  const bannerSpring = spring({ frame: frame - T.BANNER_IN, fps, config: { damping: 18, stiffness: 100 } });
-  const bannerX = interpolate(bannerSpring, [0, 1], [isRtl ? 140 : -140, 0]);
-  const bannerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
+  const headerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
   });
 
   const phoneSpring = spring({ frame: frame - T.PHONE_IN, fps, config: { damping: 16, stiffness: 110 } });
   const phoneY = interpolate(phoneSpring, [0, 1], [120, 0]);
   const phoneOpacity = interpolate(frame, [T.PHONE_IN, T.PHONE_IN + 0.7 * fps], [0, 1], {
+    extrapolateRight: "clamp", extrapolateLeft: "clamp",
+  });
+
+  const tabletSpring = spring({ frame: frame - T.TABLET_IN, fps, config: { damping: 16, stiffness: 110 } });
+  const tabletX = interpolate(tabletSpring, [0, 1], [isRtl ? -56 : 56, 0], {
+    extrapolateRight: "clamp", extrapolateLeft: "clamp",
+  });
+  const tabletOpacity = interpolate(frame, [T.TABLET_IN, T.TABLET_IN + 0.65 * fps], [0, 1], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
   });
 
@@ -288,43 +370,67 @@ export const SceneListenLearn: React.FC<VideoProps> = ({ theme, locale }) => {
         opacity: theme === "dark" ? 0.05 : 0.03, filter: "blur(80px)",
       }} />
 
-      {/* Left: banner + phone */}
+      {/* Left: phone | tablet — same store_player_* cycle (crossfaded) */}
       <div style={{
         position: "absolute",
         left: isRtl ? undefined : leftStart,
         right: isRtl ? width - leftStart - LEFT_W : undefined,
         top: 0, width: LEFT_W, height,
         display: "flex", alignItems: "center", justifyContent: "center",
-        gap: LEFT_GAP, flexDirection: isRtl ? "row-reverse" : "row",
       }}>
         <div style={{
-          transform: `translateX(${bannerX}px)`, opacity: bannerOpacity,
-          borderRadius: 20, overflow: "hidden",
-          border: `2px solid ${phoneFrameBorder}`,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.32)", flexShrink: 0,
+          display: "flex", flexDirection: isRtl ? "row-reverse" : "row",
+          alignItems: "center",
+          gap: COL_GAP,
+          flexShrink: 0,
         }}>
-          <Img
-            src={staticFile("store_artefacts/story/output/GooglePlay/5_listen___learn_podcasts.png")}
-            style={{ width: BANNER_W, height: BANNER_H, objectFit: "cover", display: "block" }}
-          />
-        </div>
-
-        <div style={{
-          transform: `translateY(${phoneY}px)`, opacity: phoneOpacity,
-          borderRadius: 28, overflow: "hidden",
-          border: `2px solid ${phoneFrameBorder}`,
-          background: phoneBg, flexShrink: 0,
-          boxShadow: "0 24px 64px rgba(0,0,0,0.38)", position: "relative",
-        }}>
-          <div style={{
-            position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-            width: 90, height: 24, background: phoneBg,
-            borderBottomLeftRadius: 14, borderBottomRightRadius: 14, zIndex: 3,
-          }} />
-          <Img
-            src={staticFile("store_artefacts/ios/screenshots/en/en_store_summary_6_7.png")}
-            style={{ width: PHONE_W, height: PHONE_H, objectFit: "cover", objectPosition: "top", display: "block" }}
-          />
+          <div style={{ transform: `translateY(${phoneY}px)`, opacity: phoneOpacity }}>
+            <div style={{
+              width: phoneW, height: phoneH, minWidth: phoneW, minHeight: phoneH,
+              borderRadius: 28, overflow: "hidden",
+              border: `2px solid ${phoneFrameBorder}`,
+              background: phoneBg, position: "relative", flexShrink: 0,
+              boxShadow: "0 24px 64px rgba(0,0,0,0.38)",
+            }}>
+              <div style={{
+                position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+                width: 90, height: 24, background: phoneBg,
+                borderBottomLeftRadius: 14, borderBottomRightRadius: 14, zIndex: 4,
+              }} />
+              {LISTEN_PLAYER_FILES.map((file, i) => (
+                <Img
+                  key={file}
+                  src={staticFile(sceneListenStorePath(file, "ios", theme, locale))}
+                  style={{
+                    position: "absolute", inset: 0,
+                    width: "100%", height: "100%", objectFit: "cover", objectPosition: "top",
+                    opacity: listenPlayerLayerOpacity(frame, T.PHONE_IN, fps, i, LISTEN_STEP_SEC),
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+          <div style={{ transform: `translateX(${tabletX}px)`, opacity: tabletOpacity }}>
+            <div style={{
+              width: tabletW, height: tabletH, minWidth: tabletW, minHeight: tabletH,
+              borderRadius: 18, overflow: "hidden",
+              border: `2px solid ${phoneFrameBorder}`,
+              background: phoneBg, position: "relative", flexShrink: 0,
+              boxShadow: "0 20px 56px rgba(0,0,0,0.36)",
+            }}>
+              {LISTEN_PLAYER_FILES.map((file, i) => (
+                <Img
+                  key={file}
+                  src={staticFile(sceneListenStorePath(file, "tablet", theme, locale))}
+                  style={{
+                    position: "absolute", inset: 0,
+                    width: "100%", height: "100%", objectFit: "cover", objectPosition: "top",
+                    opacity: listenPlayerLayerOpacity(frame, T.PHONE_IN, fps, i, LISTEN_STEP_SEC),
+                  }}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -339,7 +445,7 @@ export const SceneListenLearn: React.FC<VideoProps> = ({ theme, locale }) => {
       }}>
         {/* Scene label */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 10, opacity: bannerOpacity,
+          display: "flex", alignItems: "center", gap: 10, opacity: headerOpacity,
           flexDirection: isRtl ? "row-reverse" : "row",
         }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
