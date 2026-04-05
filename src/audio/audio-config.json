@@ -1,5 +1,5 @@
 {
-  "_readme": "Maps locale codes to scene audio files. Falls back to 'en' if the locale is not available. Add a new locale key with scene paths to enable localized audio. Keys match scene IDs from voice-scripts.json.",
+  "_readme": "Maps locale codes to scene audio files. Falls back to 'en' if the locale is not available. Keys match scene IDs from voice-scripts.json. If a scene should keep English VO (dialogue still in English for that locale), set its path to audio/en/scene_N.wav for that locale — no separate 'English UI' track; UI-only English strings are not voiced.",
   "_naming": "Audio files go in public/audio/{lang}/{scene_id}.wav  e.g. public/audio/ru/scene_1.wav",
   "default_locale": "en",
   "en": {
@@ -13,5 +13,29 @@
     "scene8":  "audio/en/scene_8.wav",
     "scene9":  "audio/en/scene_9.wav",
     "scene10": "audio/en/scene_10.wav"
+  },
+  "ru": {
+    "scene1":  "audio/ru/scene_1.wav",
+    "scene2":  "audio/ru/scene_2.wav",
+    "scene3":  "audio/ru/scene_3.wav",
+    "scene4":  "audio/ru/scene_4.wav",
+    "scene5":  "audio/ru/scene_5.wav",
+    "scene6":  "audio/ru/scene_6.wav",
+    "scene7":  "audio/ru/scene_7.wav",
+    "scene8":  "audio/ru/scene_8.wav",
+    "scene9":  "audio/ru/scene_9.wav",
+    "scene10": "audio/ru/scene_10.wav"
+  },
+  "uk": {
+    "scene1":  "audio/uk/scene_1.wav",
+    "scene2":  "audio/uk/scene_2.wav",
+    "scene3":  "audio/uk/scene_3.wav",
+    "scene4":  "audio/uk/scene_4.wav",
+    "scene5":  "audio/uk/scene_5.wav",
+    "scene6":  "audio/uk/scene_6.wav",
+    "scene7":  "audio/uk/scene_7.wav",
+    "scene8":  "audio/uk/scene_8.wav",
+    "scene9":  "audio/uk/scene_9.wav",
+    "scene10": "audio/uk/scene_10.wav"
   }
 }

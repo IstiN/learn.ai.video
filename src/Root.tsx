@@ -16,6 +16,7 @@ import {
   SCENE5_FRAMES, SCENE6_FRAMES, SCENE7_FRAMES, SCENE_LL_FRAMES,
   SCENE8_FRAMES, SCENE9_FRAMES,
 } from "./scenes/FullVideo";
+import { SUPPORTED_LOCALES } from "./i18n/translations";
 import { VideoProps } from "./types";
 
 const FPS = 30;
@@ -33,6 +34,16 @@ const defaultVideoProps: VideoProps = {
   locale: "en-US",
 };
 
+/**
+ * Every locale from `translations` — keeps FullVideo-Locales-Light and Locales-Preview
+ * in sync when new languages are added (en-US first, then alphabetical).
+ */
+const PREVIEW_LOCALES = [...SUPPORTED_LOCALES].sort((a, b) => {
+  if (a === "en-US") return -1;
+  if (b === "en-US") return 1;
+  return a.localeCompare(b, "en");
+});
+
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -46,6 +57,21 @@ export const RemotionRoot: React.FC = () => {
         height={HEIGHT}
         defaultProps={defaultVideoProps satisfies VideoProps}
       />
+
+      <Folder name="FullVideo-Locales-Light">
+        {PREVIEW_LOCALES.map((locale) => (
+          <Composition
+            key={`full-${locale}`}
+            id={`FullVideo-${locale}-Light`}
+            component={FullVideo}
+            durationInFrames={TOTAL_FRAMES}
+            fps={FPS}
+            width={WIDTH}
+            height={HEIGHT}
+            defaultProps={{ theme: "light", locale } satisfies VideoProps}
+          />
+        ))}
+      </Folder>
 
       {/* ── Individual scenes (for editing / preview) ── */}
       <Folder name="Scenes">
@@ -165,42 +191,42 @@ export const RemotionRoot: React.FC = () => {
       </Folder>
 
       <Folder name="Locales-Preview">
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s2-${locale}`} id={`Scene2-${locale}`} component={Scene2DeviceMockup}
             durationInFrames={SCENE2_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />
         ))}
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s3-${locale}`} id={`Scene3-${locale}`} component={Scene3SmartSetup}
             durationInFrames={SCENE3_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />
         ))}
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s4-${locale}`} id={`Scene4-${locale}`} component={Scene4ScanSolve}
             durationInFrames={SCENE4_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />
         ))}
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s5-${locale}`} id={`Scene5-${locale}`} component={Scene5AiChat}
             durationInFrames={SCENE5_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />
         ))}
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s6-${locale}`} id={`Scene6-${locale}`} component={Scene6Verification}
             durationInFrames={SCENE6_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />
         ))}
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s7-${locale}`} id={`Scene7-${locale}`} component={Scene7FamilyHub}
             durationInFrames={SCENE7_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />
         ))}
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s8-${locale}`} id={`Scene8-${locale}`} component={Scene8TrackProgress}
             durationInFrames={SCENE8_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />
         ))}
-        {(["en-US", "ru-RU", "de-DE", "es-ES", "fr-FR", "ja-JP", "ar", "zh-CN"] as const).map((locale) => (
+        {PREVIEW_LOCALES.map((locale) => (
           <Composition key={`s9-${locale}`} id={`Scene9-${locale}`} component={Scene9CTA}
             durationInFrames={SCENE9_FRAMES} fps={FPS} width={WIDTH} height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps} />

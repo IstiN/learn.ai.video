@@ -16,7 +16,14 @@
     "render:light": "npx remotion render Scene1 out/scene1-light.mp4 --props='{\"theme\":\"light\",\"locale\":\"en-US\"}'",
     "render:all": "node scripts/render-all.js",
     "render:all:en": "node scripts/render-all.js --locale en-US",
-    "render:all:light": "node scripts/render-all.js --theme light"
+    "render:all:light": "node scripts/render-all.js --theme light",
+    "tts:prompts": "node scripts/voice-prompts-from-json.mjs",
+    "tts:prompts:all-locales": "node scripts/voice-prompts-from-json.mjs --all-locales",
+    "tts:generate-unique": "node scripts/tts-generate-unique.mjs",
+    "tts:generate-unique:dry": "node scripts/tts-generate-unique.mjs --dry-run",
+    "tts:generate-unique:force": "node scripts/tts-generate-unique.mjs --force",
+    "audio:sync-config": "node scripts/audio-config-sync.mjs",
+    "tts:all": "npm run tts:prompts && npm run tts:generate-unique && npm run audio:sync-config"
   },
   "keywords": [],
   "author": "",
