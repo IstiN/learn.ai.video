@@ -20,8 +20,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
+import { videoFontFamily as fontFamily } from "../fonts/videoFonts";
 import { themes } from "../themes";
 import { t } from "../i18n/translations";
 import {
@@ -38,11 +38,6 @@ import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
 import { scene8TestGoldenPath } from "../config/scene-assets";
-
-const { fontFamily } = loadFont("normal", {
-  weights: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-});
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 

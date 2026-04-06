@@ -16,8 +16,8 @@ import {
   useVideoConfig,
 } from "remotion";
 import QRCode from "react-qr-code";
-import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
+import { videoFontFamily as fontFamily } from "../fonts/videoFonts";
 import { themes } from "../themes";
 import { t } from "../i18n/translations";
 import { UserAvatarIcon } from "../components/AppIcons";
@@ -25,11 +25,6 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
-
-const { fontFamily } = loadFont("normal", {
-  weights: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-});
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
@@ -169,8 +164,8 @@ const QRRow: React.FC<{
 
   const items = [
     {
-      url: "https://learn.ai-native.pro/",
-      label: "learn.ai-native.pro",
+      url: "https://familylearn.ai/",
+      label: "familylearn.ai",
       icon: <GlobeIcon size={28} color={colors.brand} />,
     },
     {

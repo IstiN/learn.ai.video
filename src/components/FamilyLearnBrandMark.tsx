@@ -1,17 +1,12 @@
 import React from "react";
-import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { Theme, ThemeColors, themes } from "../themes";
+import { videoFontFamily as fontFamily } from "../fonts/videoFonts";
 import { t } from "../i18n/translations";
 import { AppLogoIcon } from "./AppLogoIcon";
 import {
   BRAND_CORNER_INSET,
   BRAND_CORNER_TOP,
 } from "../config/brandCornerLayout";
-
-const { fontFamily } = loadFont("normal", {
-  weights: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-});
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 

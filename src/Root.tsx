@@ -73,6 +73,21 @@ export const RemotionRoot: React.FC = () => {
         ))}
       </Folder>
 
+      <Folder name="FullVideo-Locales-Dark">
+        {PREVIEW_LOCALES.map((locale) => (
+          <Composition
+            key={`full-dark-${locale}`}
+            id={`FullVideo-${locale}-Dark`}
+            component={FullVideo}
+            durationInFrames={TOTAL_FRAMES}
+            fps={FPS}
+            width={WIDTH}
+            height={HEIGHT}
+            defaultProps={{ theme: "dark", locale } satisfies VideoProps}
+          />
+        ))}
+      </Folder>
+
       {/* ── Individual scenes (for editing / preview) ── */}
       <Folder name="Scenes">
         <Composition

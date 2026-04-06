@@ -17,8 +17,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
+import { videoFontFamily as fontFamily } from "../fonts/videoFonts";
 import { themes } from "../themes";
 import { t } from "../i18n/translations";
 import { UserAvatarIcon } from "../components/AppIcons";
@@ -28,11 +28,6 @@ import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
 import { StorePhoneFrame, StoreTabletFrame } from "../components/StoreDeviceFrames";
 import { scene7FamilyStorePath } from "../config/scene-assets";
-
-const { fontFamily } = loadFont("normal", {
-  weights: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-});
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 

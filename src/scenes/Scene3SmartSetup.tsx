@@ -19,8 +19,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
+import { videoFontFamily as fontFamily } from "../fonts/videoFonts";
 import { themes, ThemeColors } from "../themes";
 import { badgeTriple, t } from "../i18n/translations";
 import { UserAvatarIcon } from "../components/AppIcons";
@@ -34,11 +34,6 @@ import {
   scene3SubjectsStorePath,
 } from "../config/scene-assets";
 import { StoreTabletFrameLayers } from "../components/StoreDeviceFrames";
-
-const { fontFamily } = loadFont("normal", {
-  weights: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-});
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 

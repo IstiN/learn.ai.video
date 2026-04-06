@@ -1,0 +1,238 @@
+{
+  "_comment": "hooks[]: line + accent (gold/cyan). variant = hash(locale:theme)%4. subline = localized 'overview' CTA.",
+  "hooks": {
+    "en": [
+      { "line": "LEARNING WITHOUT TEARS", "accent": "WITHOUT TEARS" },
+      { "line": "AI INSTEAD OF TUTORS", "accent": "AI" },
+      { "line": "LEARN 5× FASTER", "accent": "5× FASTER" },
+      { "line": "HOMEWORK WITHOUT DRAMA", "accent": "WITHOUT DRAMA" }
+    ],
+    "ru": [
+      { "line": "УЧЕБА БЕЗ СЛЁЗ", "accent": "БЕЗ СЛЁЗ" },
+      { "line": "ИИ ВМЕСТО РЕПЕТИТОРА", "accent": "ИИ" },
+      { "line": "УЧИМСЯ В 5 РАЗ БЫСТРЕЕ", "accent": "5 РАЗ БЫСТРЕЕ" },
+      { "line": "ДОМАШКА БЕЗ СТРЕССА", "accent": "БЕЗ СТРЕССА" }
+    ],
+    "de": [
+      { "line": "LERNEN OHNE TRÄNEN", "accent": "OHNE TRÄNEN" },
+      { "line": "KI STATT NACHHILFE", "accent": "KI" },
+      { "line": "5× SCHNELLER LERNEN", "accent": "5× SCHNELLER" },
+      { "line": "HAUSAUFGABEN OHNE DRAMA", "accent": "OHNE DRAMA" }
+    ],
+    "fr": [
+      { "line": "APPRENDRE SANS LARMES", "accent": "SANS LARMES" },
+      { "line": "L'IA PAS LE PROF CHER", "accent": "L'IA" },
+      { "line": "APPRENDRE 5× PLUS VITE", "accent": "5× PLUS VITE" },
+      { "line": "DEVOIRS SANS DRAME", "accent": "SANS DRAME" }
+    ],
+    "es": [
+      { "line": "ESTUDIAR SIN LÁGRIMAS", "accent": "SIN LÁGRIMAS" },
+      { "line": "IA EN VEZ DEL TUTOR", "accent": "IA" },
+      { "line": "APRENDE 5× MÁS RÁPIDO", "accent": "5× MÁS RÁPIDO" },
+      { "line": "DEBERES SIN DRAMA", "accent": "SIN DRAMA" }
+    ],
+    "pt": [
+      { "line": "ESTUDAR SEM LÁGRIMAS", "accent": "SEM LÁGRIMAS" },
+      { "line": "IA EM VEZ DO TUTOR", "accent": "IA" },
+      { "line": "APRENDA 5× MAIS RÁPIDO", "accent": "5× MAIS RÁPIDO" },
+      { "line": "LIÇÃO DE CASA SEM DRAMA", "accent": "SEM DRAMA" }
+    ],
+    "it": [
+      { "line": "STUDIARE SENZA LACRIME", "accent": "SENZA LACRIME" },
+      { "line": "L'IA AL POSTO DEL TUTOR", "accent": "L'IA" },
+      { "line": "IMPARA 5× PIÙ IN FRETTA", "accent": "5× PIÙ IN FRETTA" },
+      { "line": "COMPITI SENZA DRAMA", "accent": "SENZA DRAMA" }
+    ],
+    "pl": [
+      { "line": "NAUKA BEZ ŁEZ", "accent": "BEZ ŁEZ" },
+      { "line": "AI ZAMIAST KOREPETYTORA", "accent": "AI" },
+      { "line": "UCZYMY SIĘ 5× SZYBCIEJ", "accent": "5× SZYBCIEJ" },
+      { "line": "LEKCJE BEZ STRESU", "accent": "BEZ STRESU" }
+    ],
+    "uk": [
+      { "line": "НАВЧАННЯ БЕЗ СЛІЗ", "accent": "БЕЗ СЛІЗ" },
+      { "line": "ШІ ЗАМІСТЬ РЕПЕТИТОРА", "accent": "ШІ" },
+      { "line": "ВЧИМОСЬ У 5 РАЗ ШВИДШЕ", "accent": "5 РАЗ ШВИДШЕ" },
+      { "line": "ДЗ БЕЗ СТРЕСУ", "accent": "БЕЗ СТРЕСУ" }
+    ],
+    "ja": [
+      { "line": "涙なしで学ぶ", "accent": "涙なし" },
+      { "line": "家庭教師よりAI", "accent": "AI" },
+      { "line": "5倍速く学ぶ", "accent": "5倍" },
+      { "line": "宿題ストレスゼロ", "accent": "ゼロ" }
+    ],
+    "ko": [
+      { "line": "눈물 없는 공부", "accent": "눈물 없는" },
+      { "line": "과외 대신 AI", "accent": "AI" },
+      { "line": "5배 빠르게 배우기", "accent": "5배" },
+      { "line": "숙제 스트레스 끝", "accent": "끝" }
+    ],
+    "zh-CN": [
+      { "line": "学习不流泪", "accent": "不流泪" },
+      { "line": "AI代替家教", "accent": "AI" },
+      { "line": "学得快5倍", "accent": "5倍" },
+      { "line": "作业零压力", "accent": "零压力" }
+    ],
+    "zh-TW": [
+      { "line": "學習不流淚", "accent": "不流淚" },
+      { "line": "AI取代家教", "accent": "AI" },
+      { "line": "學得快5倍", "accent": "5倍" },
+      { "line": "作業零壓力", "accent": "零壓力" }
+    ],
+    "ar": [
+      { "line": "تعلم بدون دموع", "accent": "بدون دموع" },
+      { "line": "الذكاء بدل المدرس", "accent": "الذكاء" },
+      { "line": "تعلم أسرع 5 مرات", "accent": "5 مرات" },
+      { "line": "واجبات بلا توتر", "accent": "بلا توتر" }
+    ],
+    "he": [
+      { "line": "לומדים בלי דמעות", "accent": "בלי דמעות" },
+      { "line": "בינה במקום מורה", "accent": "בינה" },
+      { "line": "לומדים פי 5 מהר יותר", "accent": "פי 5" },
+      { "line": "שיעורי בית בלי דרמה", "accent": "בלי דרמה" }
+    ],
+    "hi": [
+      { "line": "आँसू के बिना पढ़ाई", "accent": "बिना" },
+      { "line": "ट्यूटर की जगह AI", "accent": "AI" },
+      { "line": "5× तेज़ सीखें", "accent": "5×" },
+      { "line": "होमवर्क बिना तनाव", "accent": "बिना तनाव" }
+    ],
+    "tr": [
+      { "line": "GÖZ YAŞI OLMADAN", "accent": "GÖZ YAŞI" },
+      { "line": "ÖZEL DERS YERİNE YAPAY ZEKA", "accent": "YAPAY ZEKA" },
+      { "line": "5× DAHA HIZLI ÖĞREN", "accent": "5×" },
+      { "line": "ÖDEV STRESSSİZ", "accent": "STRESSSİZ" }
+    ],
+    "nl": [
+      { "line": "LEREN ZONDER TRANEN", "accent": "ZONDER TRANEN" },
+      { "line": "AI I.P.V. BIJLES", "accent": "AI" },
+      { "line": "5× SNELLER LEREN", "accent": "5× SNELLER" },
+      { "line": "HUISWERK ZONDER DRAMA", "accent": "ZONDER DRAMA" }
+    ],
+    "sv": [
+      { "line": "LÄRA SIG UTAN TÅRAR", "accent": "UTAN TÅRAR" },
+      { "line": "AI ISTÄLLET FÖR LÄXHJÄLP", "accent": "AI" },
+      { "line": "LÄR DIG 5× SNABBARE", "accent": "5× SNABBARE" },
+      { "line": "LÄXOR UTAN DRAMA", "accent": "UTAN DRAMA" }
+    ],
+    "da": [
+      { "line": "LÆRE UDEN TÅRER", "accent": "UDEN TÅRER" },
+      { "line": "AI I STEDET FOR LEKTIEHJÆLP", "accent": "AI" },
+      { "line": "LÆR 5× HURTIGERE", "accent": "5× HURTIGERE" },
+      { "line": "LEKTIER UDEN DRAMA", "accent": "UDEN DRAMA" }
+    ],
+    "no": [
+      { "line": "LÆRE UTEN TÅRER", "accent": "UTEN TÅRER" },
+      { "line": "AI I STEDET FOR LEKSEHJELP", "accent": "AI" },
+      { "line": "LÆR 5× RASKERE", "accent": "5× RASKERE" },
+      { "line": "LEKSER UTEN DRAMA", "accent": "UTEN DRAMA" }
+    ],
+    "fi": [
+      { "line": "OPPI ILMAN KYYNELIÄ", "accent": "ILMAN KYYNELIÄ" },
+      { "line": "TEKOÄLY TUUTORIN SIJASTA", "accent": "TEKOÄLY" },
+      { "line": "OPETTELE 5× NOPEAMMIN", "accent": "5×" },
+      { "line": "KOTITEHTÄVÄT ILMAN DRAAMAA", "accent": "ILMAN DRAAMAA" }
+    ],
+    "cs": [
+      { "line": "UČENÍ BEZ SLZ", "accent": "BEZ SLZ" },
+      { "line": "AI MÍSTO DOUČOVÁNÍ", "accent": "AI" },
+      { "line": "UČTE SE 5× RYCHLEJI", "accent": "5× RYCHLEJI" },
+      { "line": "ÚKOLY BEZ STRESU", "accent": "BEZ STRESU" }
+    ],
+    "sk": [
+      { "line": "UČENIE BEZ SĹZ", "accent": "BEZ SĹZ" },
+      { "line": "AI NAMIESTO DOUČOVANIA", "accent": "AI" },
+      { "line": "UČTE SA 5× RÝCHLEJŠIE", "accent": "5× RÝCHLEJŠIE" },
+      { "line": "ÚLOHY BEZ STRESU", "accent": "BEZ STRESU" }
+    ],
+    "el": [
+      { "line": "ΜΑΘΗΣΗ ΧΩΡΙΣ ΔΑΚΡΥΑ", "accent": "ΧΩΡΙΣ ΔΑΚΡΥΑ" },
+      { "line": "ΤΝ ΑΝΤΙ ΦΡΟΝΤΙΣΤΗ", "accent": "ΤΝ" },
+      { "line": "ΜΑΘΑΙΝΕΤΕ 5× ΠΙΟ ΓΡΗΓΟΡΑ", "accent": "5×" },
+      { "line": "ΕΡΓΑΣΙΕΣ ΧΩΡΙΣ ΣΤΡΕΣ", "accent": "ΧΩΡΙΣ ΣΤΡΕΣ" }
+    ],
+    "ro": [
+      { "line": "ÎNVĂȚARE FĂRĂ LACRIMI", "accent": "FĂRĂ LACRIMI" },
+      { "line": "AI ÎN LOC DE MEDITAȚII", "accent": "AI" },
+      { "line": "ÎNVAȚĂ DE 5× MAI REPEDE", "accent": "5×" },
+      { "line": "TEME FĂRĂ STRES", "accent": "FĂRĂ STRES" }
+    ],
+    "hr": [
+      { "line": "UČENJE BEZ SUZA", "accent": "BEZ SUZA" },
+      { "line": "AI UMJESTO REPETICIJE", "accent": "AI" },
+      { "line": "UČI 5× BRŽE", "accent": "5× BRŽE" },
+      { "line": "DOMAĆA BEZ DRAME", "accent": "BEZ DRAME" }
+    ],
+    "hu": [
+      { "line": "TANULÁS KÖNNYEK NÉLKÜL", "accent": "NÉLKÜL" },
+      { "line": "AI A DRÁGA MAGÁNTANÁR HELYETT", "accent": "AI" },
+      { "line": "TANULJ 5× GYORSABBAN", "accent": "5×" },
+      { "line": "HÁZI STRESSZ NÉLKÜL", "accent": "NÉLKÜL" }
+    ],
+    "ca": [
+      { "line": "ESTUDIAR SENSE LLAGRIMES", "accent": "SENSE LLAGRIMES" },
+      { "line": "IA EN LLOC DEL TUTOR", "accent": "IA" },
+      { "line": "APRÈN 5× MÉS RÀPID", "accent": "5× MÉS RÀPID" },
+      { "line": "DEURES SENSE DRAMA", "accent": "SENSE DRAMA" }
+    ],
+    "id": [
+      { "line": "BELAJAR TANPA AIR MATA", "accent": "TANPA AIR MATA" },
+      { "line": "AI GANTI TUTOR", "accent": "AI" },
+      { "line": "BELAJAR 5× LEBIH CEPAT", "accent": "5×" },
+      { "line": "PR TANPA DRAMA", "accent": "TANPA DRAMA" }
+    ],
+    "th": [
+      { "line": "เรียนโดยไม่มีน้ำตา", "accent": "ไม่มีน้ำตา" },
+      { "line": "AI แทนติวเตอร์", "accent": "AI" },
+      { "line": "เร็วขึ้น 5 เท่า", "accent": "5 เท่า" },
+      { "line": "การบ้านไร้เครียด", "accent": "ไร้เครียด" }
+    ],
+    "vi": [
+      { "line": "HỌC KHÔNG NƯỚC MẮT", "accent": "KHÔNG NƯỚC MẮT" },
+      { "line": "AI THAY GIA SƯ", "accent": "AI" },
+      { "line": "HỌC NHANH GẤP 5 LẦN", "accent": "GẤP 5" },
+      { "line": "BÀI TẬP KHÔNG CĂNG THẲNG", "accent": "KHÔNG CĂNG THẲNG" }
+    ],
+    "ms": [
+      { "line": "BELAJAR TANPA AIR MATA", "accent": "TANPA AIR MATA" },
+      { "line": "AI GANTI TUISYEN", "accent": "AI" },
+      { "line": "5× LEBIH LAJU BELAJAR", "accent": "5×" },
+      { "line": "HW TANPA TEKANAN", "accent": "TANPA TEKANAN" }
+    ]
+  },
+  "subline": {
+    "en": "FamilyLearn.ai overview",
+    "ru": "Обзор FamilyLearn.ai",
+    "de": "FamilyLearn.ai im Überblick",
+    "fr": "Présentation FamilyLearn.ai",
+    "es": "Vistazo a FamilyLearn.ai",
+    "pt": "Visão geral FamilyLearn.ai",
+    "it": "Panoramica FamilyLearn.ai",
+    "pl": "Przegląd FamilyLearn.ai",
+    "uk": "Огляд FamilyLearn.ai",
+    "ja": "FamilyLearn.ai 紹介",
+    "ko": "FamilyLearn.ai 소개",
+    "zh-CN": "FamilyLearn.ai 概览",
+    "zh-TW": "FamilyLearn.ai 概覽",
+    "ar": "نظرة على FamilyLearn.ai",
+    "he": "סקירת FamilyLearn.ai",
+    "hi": "FamilyLearn.ai परिचय",
+    "tr": "FamilyLearn.ai tanıtımı",
+    "nl": "FamilyLearn.ai overzicht",
+    "sv": "Översikt FamilyLearn.ai",
+    "da": "FamilyLearn.ai overblik",
+    "no": "Oversikt FamilyLearn.ai",
+    "fi": "FamilyLearn.ai esittely",
+    "cs": "Přehled FamilyLearn.ai",
+    "sk": "Prehľad FamilyLearn.ai",
+    "el": "Επισκόπηση FamilyLearn.ai",
+    "ro": "Prezentare FamilyLearn.ai",
+    "hr": "Pregled FamilyLearn.ai",
+    "hu": "FamilyLearn.ai áttekintés",
+    "ca": "Visió general FamilyLearn.ai",
+    "id": "Ikhtisar FamilyLearn.ai",
+    "th": "แนะนำ FamilyLearn.ai",
+    "vi": "Tổng quan FamilyLearn.ai",
+    "ms": "Gambaran FamilyLearn.ai"
+  }
+}

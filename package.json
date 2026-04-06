@@ -23,7 +23,19 @@
     "tts:generate-unique:dry": "node scripts/tts-generate-unique.mjs --dry-run",
     "tts:generate-unique:force": "node scripts/tts-generate-unique.mjs --force",
     "audio:sync-config": "node scripts/audio-config-sync.mjs",
-    "tts:all": "npm run tts:prompts && npm run tts:generate-unique && npm run audio:sync-config"
+    "tts:all": "npm run tts:prompts && npm run tts:generate-unique && npm run audio:sync-config",
+    "render:fullvideo:all": "node scripts/render-fullvideo-all.cjs",
+    "render:fullvideo:all:upload:public": "node scripts/render-fullvideo-all.cjs --theme both --skip-existing --then-upload --upload-privacy public",
+    "youtube:config:sync": "node scripts/sync-youtube-videos-config.cjs",
+    "youtube:oauth": "node scripts/youtube-oauth-init.cjs",
+    "youtube:upload": "node scripts/youtube-upload.cjs",
+    "youtube:upload:dry": "node scripts/youtube-upload.cjs --dry-run",
+    "youtube:thumbnails:apply": "node scripts/youtube-thumbnails-apply.cjs",
+    "youtube:playlist:sync": "node scripts/youtube-playlist-sync.cjs",
+    "youtube:publish": "node scripts/youtube-videos-publish.cjs",
+    "youtube:metadata:sync": "node scripts/youtube-videos-sync-metadata.cjs",
+    "youtube:thumbnail": "node scripts/generate-youtube-thumbnail.cjs",
+    "youtube:thumbnail:all": "node scripts/generate-youtube-thumbnail.cjs --all"
   },
   "keywords": [],
   "author": "",
@@ -32,12 +44,15 @@
   "devDependencies": {
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "sharp": "^0.34.1",
     "typescript": "^6.0.2"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.443",
     "@remotion/google-fonts": "^4.0.443",
     "@remotion/media": "^4.0.443",
+    "googleapis": "^171.4.0",
+    "open": "^11.0.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-qr-code": "^2.0.18",

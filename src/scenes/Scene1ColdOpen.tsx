@@ -9,8 +9,8 @@ import {
 } from "remotion";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
-import { loadFont } from "@remotion/google-fonts/PlusJakartaSans";
 import { VideoProps } from "../types";
+import { videoFontFamily as fontFamily } from "../fonts/videoFonts";
 import { themes } from "../themes";
 import { t } from "../i18n/translations";
 import { AppLogoIcon } from "../components/AppLogoIcon";
@@ -28,11 +28,6 @@ import {
   scene1MoveToCornerEndFrames,
   scene1MoveToCornerStartFrames,
 } from "../config/scene1BrandMotion";
-
-const { fontFamily } = loadFont("normal", {
-  weights: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-});
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
