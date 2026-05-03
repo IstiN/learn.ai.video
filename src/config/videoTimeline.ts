@@ -23,3 +23,15 @@ export const FULL_VIDEO_TOTAL_FRAMES =
   SCENE_LL_FRAMES +
   SCENE8_FRAMES +
   SCENE9_FRAMES;
+
+/** First frame index of Scene 9 inside `FullVideo` (for overlay / sync). */
+export const FULL_VIDEO_SCENE9_START_FRAME =
+  SCENE1_FRAMES +
+  SCENE2_FRAMES +
+  SCENE3_FRAMES +
+  SCENE4_FRAMES +
+  SCENE5_FRAMES +
+  SCENE6_FRAMES +
+  SCENE7_FRAMES +
+  SCENE_LL_FRAMES +
+  SCENE8_FRAMES;

@@ -38,6 +38,7 @@ import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
 import { scene8TestGoldenPath } from "../config/scene-assets";
+import { useSplitPanels } from "../layout/useSplitPanels";
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
@@ -568,19 +569,25 @@ export const Scene8TrackProgress: React.FC<VideoProps> = ({
   const colors = themes[theme];
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
+  const panels = useSplitPanels(isRtl);
+  const v = panels.visual;
+  const c = panels.copy;
+  const isPortrait = panels.aspect === "portrait";
 
   const TABLET_ASPECT = 2732 / 2048;
   const IOS_ASPECT = 1284 / 2778;
-  const DEV_GAP = 28;
+  const DEV_GAP = isPortrait ? 16 : 28;
   const LEFT_PAD_SCENE8 = 36;
 
-  let rowH = Math.round(height * 0.68);
+  let rowH = Math.round(isPortrait ? v.height * 0.9 : height * 0.68);
   let phoneH = rowH;
   let phoneW = Math.round(phoneH * IOS_ASPECT);
   let tabletH = rowH;
   let tabletW = Math.round(tabletH * TABLET_ASPECT);
   let rowW = phoneW + DEV_GAP + tabletW;
-  const maxRowW = Math.round(width * 0.52);
+  const maxRowW = Math.round(
+    isPortrait ? v.width * 0.98 : width * 0.52
+  );
   if (rowW > maxRowW) {
     const s = maxRowW / rowW;
     rowH = Math.round(rowH * s);
@@ -599,6 +606,18 @@ export const Scene8TrackProgress: React.FC<VideoProps> = ({
   const leftStart = isRtl ? width - LEFT_W - EDGE_X : EDGE_X;
   const rightStart = EDGE_X + LEFT_W + COL_GAP;
   const RIGHT_W = Math.min(width - EDGE_X - rightStart, RIGHT_COL_CAP);
+
+  const visualBox = isPortrait
+    ? { left: v.left, top: v.top, width: v.width, height: v.height }
+    : isRtl
+      ? { right: EDGE_X, top: 0, width: LEFT_W, height }
+      : { left: leftStart, top: 0, width: LEFT_W, height };
+
+  const copyBox = isPortrait
+    ? { left: c.left, top: c.top, width: c.width, height: c.height }
+    : isRtl
+      ? { left: EDGE_X, top: 0, width: RIGHT_W, height }
+      : { left: rightStart, top: 0, width: RIGHT_W, height };
 
   const bannerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
@@ -631,7 +650,11 @@ export const Scene8TrackProgress: React.FC<VideoProps> = ({
   const avatarGradientAlex = "linear-gradient(135deg, #e9631a, #c0392b)";
   const avatarGradientMaya = `linear-gradient(135deg, ${colors.brandDark}, #3B82F6)`;
   const avatarSize = 52;
-  const bubbleMax = Math.max(260, RIGHT_W - avatarSize - 28);
+  const bubbleMax = Math.max(
+    220,
+    Math.min(520, copyBox.width - avatarSize - 28)
+  );
+  const labelFont = isPortrait ? 15 : 18;
 
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
@@ -648,18 +671,32 @@ export const Scene8TrackProgress: React.FC<VideoProps> = ({
 
       <div style={{
         position: "absolute",
-        left: isRtl ? "auto" : -40, right: isRtl ? -40 : "auto",
-        top: height * 0.1, width: LEFT_W + 80, height: height * 0.8,
+        ...(isPortrait
+          ? {
+              left: v.left - 20,
+              top: v.top + v.height * 0.04,
+              width: v.width + 40,
+              height: v.height * 0.92,
+            }
+          : {
+              left: isRtl ? undefined : -40,
+              right: isRtl ? -40 : undefined,
+              top: height * 0.1,
+              width: LEFT_W + 80,
+              height: height * 0.8,
+            }),
         borderRadius: "50%", background: colors.brand,
         opacity: theme === "dark" ? 0.05 : 0.03, filter: "blur(80px)",
       }} />
 
-      {/* Left: phone + tablet — Flutter test_taking goldens → Learn Points feed */}
+      {/* Visual: phone + tablet — Flutter test_taking goldens → Learn Points feed */}
       <div style={{
         position: "absolute",
-        left: isRtl ? undefined : leftStart,
-        right: isRtl ? width - leftStart - LEFT_W : undefined,
-        top: 0, width: LEFT_W, height,
+        ...(isPortrait
+          ? { left: visualBox.left, top: visualBox.top, width: visualBox.width, height: visualBox.height }
+          : isRtl
+            ? { right: visualBox.right, top: visualBox.top, width: visualBox.width, height: visualBox.height }
+            : { left: visualBox.left, top: visualBox.top, width: visualBox.width, height: visualBox.height }),
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <div style={{
@@ -702,14 +739,19 @@ export const Scene8TrackProgress: React.FC<VideoProps> = ({
         </div>
       </div>
 
-      {/* Right: dialog (Maya speaks first!) */}
+      {/* Copy: dialog (Maya speaks first!) */}
       <div style={{
         position: "absolute",
-        left: isRtl ? undefined : rightStart,
-        right: isRtl ? width - EDGE_X - RIGHT_W : undefined,
-        top: 0, width: RIGHT_W, height,
+        left: copyBox.left,
+        top: copyBox.top,
+        width: copyBox.width,
+        height: copyBox.height,
         display: "flex", flexDirection: "column",
-        justifyContent: "center", gap: 16, padding: "0 20px",
+        justifyContent: isPortrait ? "flex-start" : "center",
+        gap: isPortrait ? 8 : 16,
+        padding: isPortrait ? "4px 10px 0" : "0 20px",
+        overflow: "hidden",
+        boxSizing: "border-box",
       }}>
         {/* Scene label */}
         <div style={{
@@ -717,7 +759,7 @@ export const Scene8TrackProgress: React.FC<VideoProps> = ({
           flexDirection: isRtl ? "row-reverse" : "row",
         }}>
           <SummaryIconFilled size={26} color={colors.brand} />
-          <span style={{ fontFamily, fontWeight: 700, fontSize: 18, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
+          <span style={{ fontFamily, fontWeight: 700, fontSize: labelFont, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
             {t(locale, "s8_widget_title")}
           </span>
         </div>

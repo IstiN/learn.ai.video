@@ -28,6 +28,7 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
+import { useSplitPanels } from "../layout/useSplitPanels";
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
@@ -51,7 +52,8 @@ const Bubble: React.FC<{
   text: string; align: "left" | "right";
   color: string; bg: string; borderColor: string;
   startFrame: number; fontSize?: number; dir?: "ltr" | "rtl";
-}> = ({ text, align, color, bg, borderColor, startFrame, fontSize = 23, dir = "ltr" }) => {
+  maxWidth?: number;
+}> = ({ text, align, color, bg, borderColor, startFrame, fontSize = 23, dir = "ltr", maxWidth = 520 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - startFrame, fps, config: { damping: 14, stiffness: 160 } });
@@ -63,7 +65,7 @@ const Bubble: React.FC<{
     <div style={{
       transform: `scale(${scale})`,
       transformOrigin: align === "left" ? "top left" : "top right",
-      opacity, maxWidth: 520, padding: "16px 22px",
+      opacity, maxWidth, padding: "16px 22px",
       borderRadius: align === "left" ? "18px 18px 18px 4px" : "18px 18px 4px 18px",
       fontFamily, fontSize, fontWeight: 600, lineHeight: 1.45,
       color, background: bg, border: `1px solid ${borderColor}`,
@@ -283,19 +285,24 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
   const colors = themes[theme];
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
+  const panels = useSplitPanels(isRtl);
+  const v = panels.visual;
+  const c = panels.copy;
+  const isPortrait = panels.aspect === "portrait";
 
   const TABLET_ASPECT = 2732 / 2048;
   const IOS_ASPECT = 1284 / 2778;
-  const COL_GAP = 28;
-  const LEFT_PAD = 40;
+  const COL_GAP = isPortrait ? 16 : 28;
 
-  let rowH = Math.round(height * 0.72);
+  let rowH = Math.round(isPortrait ? v.height * 0.9 : height * 0.72);
   let phoneH = rowH;
   let phoneW = Math.round(phoneH * IOS_ASPECT);
   let tabletH = rowH;
   let tabletW = Math.round(tabletH * TABLET_ASPECT);
   let rowW = phoneW + COL_GAP + tabletW;
-  const maxRowW = Math.round(width * 0.5);
+  const maxRowW = Math.round(
+    isPortrait ? v.width * 0.98 : Math.min(width * 0.5, v.width * 0.96)
+  );
   if (rowW > maxRowW) {
     const s = maxRowW / rowW;
     rowH = Math.round(rowH * s);
@@ -306,11 +313,9 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
     rowW = phoneW + COL_GAP + tabletW;
   }
 
-  const LEFT_W = rowW + LEFT_PAD;
-  const RIGHT_W = width - LEFT_W - 80;
+  const bubbleMax = Math.max(220, Math.min(520, c.width - 24 - 52));
 
-  const leftStart = isRtl ? width - LEFT_W - 20 : 20;
-  const rightStart = isRtl ? 20 : LEFT_W + 60;
+  const labelFont = isPortrait ? 15 : 18;
 
   const headerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
@@ -360,18 +365,21 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
       {/* Glow */}
       <div style={{
         position: "absolute",
-        left: isRtl ? "auto" : -40, right: isRtl ? -40 : "auto",
-        top: height * 0.1, width: LEFT_W + 80, height: height * 0.8,
+        left: v.left - 20,
+        top: isPortrait ? v.top + v.height * 0.04 : height * 0.1,
+        width: v.width + 40,
+        height: isPortrait ? v.height * 0.92 : height * 0.8,
         borderRadius: "50%", background: colors.brand,
         opacity: theme === "dark" ? 0.06 : 0.04, filter: "blur(80px)",
       }} />
 
-      {/* Left: phone | tablet */}
+      {/* Visual band: phone | tablet */}
       <div style={{
         position: "absolute",
-        left: isRtl ? undefined : leftStart,
-        right: isRtl ? width - leftStart - LEFT_W : undefined,
-        top: 0, width: LEFT_W, height,
+        left: v.left,
+        top: v.top,
+        width: v.width,
+        height: v.height,
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <div style={{
@@ -404,14 +412,19 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
         </div>
       </div>
 
-      {/* Right: dialog + chat preview */}
+      {/* Copy band: dialog + chat preview */}
       <div style={{
         position: "absolute",
-        left: isRtl ? undefined : rightStart,
-        right: isRtl ? width - rightStart - RIGHT_W : undefined,
-        top: 0, width: RIGHT_W, height,
+        left: c.left,
+        top: c.top,
+        width: c.width,
+        height: c.height,
         display: "flex", flexDirection: "column",
-        justifyContent: "center", gap: 14, padding: "0 28px",
+        justifyContent: isPortrait ? "flex-start" : "center",
+        gap: isPortrait ? 8 : 14,
+        padding: isPortrait ? "4px 10px 0" : "0 28px",
+        overflow: "hidden",
+        boxSizing: "border-box",
       }}>
         {/* Scene label */}
         <div style={{
@@ -423,7 +436,7 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
               stroke={colors.brand} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span style={{ fontFamily, fontWeight: 700, fontSize: 18, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
+          <span style={{ fontFamily, fontWeight: 700, fontSize: labelFont, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
             {t(locale, "s5_widget_title")}
           </span>
         </div>
@@ -435,7 +448,7 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s5_alex1")} align={isRtl ? "left" : "right"}
             color={colors.textMain} bg={colors.bubbleAlex} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_ALEX1} dir={dir} />
+            startFrame={T.DIALOG_ALEX1} dir={dir} maxWidth={bubbleMax} />
         </div>
 
         {/* Maya line 1 */}
@@ -445,7 +458,7 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s5_maya1")} align={isRtl ? "right" : "left"}
             color={colors.textMain} bg={colors.bubbleMaya} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_MAYA1} dir={dir} />
+            startFrame={T.DIALOG_MAYA1} dir={dir} maxWidth={bubbleMax} />
         </div>
 
         {/* Chat preview widget */}
@@ -460,7 +473,7 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s5_alex2")} align={isRtl ? "left" : "right"}
             color={colors.textMain} bg={colors.bubbleAlex} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_ALEX2} dir={dir} />
+            startFrame={T.DIALOG_ALEX2} dir={dir} maxWidth={bubbleMax} />
         </div>
 
         {/* Maya line 2 */}
@@ -470,7 +483,7 @@ export const Scene5AiChat: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s5_maya2")} align={isRtl ? "right" : "left"}
             color={colors.textMain} bg={colors.bubbleMaya} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_MAYA2} dir={dir} />
+            startFrame={T.DIALOG_MAYA2} dir={dir} maxWidth={bubbleMax} />
         </div>
 
         {/* Badges */}

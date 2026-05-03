@@ -97,9 +97,33 @@ function youtubeTitleFromStore(storeTitle, theme) {
   return `${base}${suffix}`;
 }
 
+/**
+ * When Play/App Store short title still says "AI Tutor" / "Tutor AI" in English but the
+ * long description opens with "FamilyLearn.AI - …" in the target language, use that line
+ * so YouTube titles match localized copy (iOS-only locales often have English name.txt).
+ */
+function youtubeTitleBaseFromListing(listing) {
+  const storeTitle = (listing.title || "").replace(/\s+/g, " ").trim();
+  const needsFromDescription =
+    /\bAI Tutor\b/i.test(storeTitle) || /\bTutor AI\b/i.test(storeTitle);
+  if (!needsFromDescription) {
+    return storeTitle;
+  }
+  const firstLine = listing.description.split(/\r?\n/)[0]?.trim() || "";
+  const m = firstLine.match(/^FamilyLearn\.AI\s*[-–—]\s*(.+)$/u);
+  if (m) {
+    const rest = m[1].trim().replace(/\s+/g, " ");
+    if (rest.length > 0) {
+      return `FamilyLearn.AI - ${rest}`;
+    }
+  }
+  return storeTitle;
+}
+
 module.exports = {
   resolveStoreBundle,
   getStoreListingForYoutube,
   youtubeTitleFromStore,
+  youtubeTitleBaseFromListing,
   metadataRoot,
 };

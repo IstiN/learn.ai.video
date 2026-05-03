@@ -18,10 +18,14 @@ import { CornerBrandLockup, FamilyLearnBrandMark } from "../components/FamilyLea
 import { ProfileIcon, UserAvatarIcon } from "../components/AppIcons";
 import { MusicTrack } from "../components/MusicTrack";
 import {
+  BRAND_CORNER_PILL_HALF_H,
+  BRAND_CORNER_PILL_HALF_W,
   BRAND_SCENE1_END_SCALE,
   brandCornerCenterX,
   brandCornerCenterY,
 } from "../config/brandCornerLayout";
+import { useVideoAspect } from "../context/VideoAspectContext";
+import { getPortraitBrandLockupTop, getPortraitSocialSafeInsets } from "../layout/twoPanelLayout";
 import {
   scene1CornerLockupOpacity,
   scene1FlyingLogoOpacityMultiplier,
@@ -72,6 +76,8 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({
   const colors = themes[theme];
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
+  const aspect = useVideoAspect();
+  const isPortrait = aspect === "portrait";
 
   // ── Timings ──
   const LINE1_START  = 0;
@@ -102,8 +108,14 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({
 
   const startCX = width / 2;
   const startCY = height / 2;
-  const endCX = brandCornerCenterX(width, isRtl);
-  const endCY = brandCornerCenterY();
+  const portraitSafe = isPortrait ? getPortraitSocialSafeInsets(width, height) : null;
+  const portraitBrandTop = isPortrait ? getPortraitBrandLockupTop(width, height) : undefined;
+  const endCX = isPortrait
+    ? (isRtl
+      ? width - portraitSafe!.right - BRAND_CORNER_PILL_HALF_W
+      : portraitSafe!.left + BRAND_CORNER_PILL_HALF_W)
+    : brandCornerCenterX(width, isRtl);
+  const endCY = isPortrait ? portraitBrandTop! + BRAND_CORNER_PILL_HALF_H : brandCornerCenterY();
   const brandCenterX = interpolate(frame, [MOVE_TO_CORNER_START, MOVE_TO_CORNER_END], [startCX, endCX], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const brandCenterY = interpolate(frame, [MOVE_TO_CORNER_START, MOVE_TO_CORNER_END], [startCY, endCY], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const blockScaleToCorner = interpolate(frame, [MOVE_TO_CORNER_START, MOVE_TO_CORNER_END], [1, BRAND_SCENE1_END_SCALE], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -131,7 +143,9 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({
     transform: `scale(${scale})`,
     transformOrigin: align === "left" ? "bottom left" : "bottom right",
     opacity,
-    maxWidth: 600,
+    maxWidth: isPortrait
+      ? Math.min(520, width - portraitSafe!.left - portraitSafe!.right - 24)
+      : 600,
     padding: "20px 28px",
     borderRadius: align === "left" ? "20px 20px 20px 4px" : "20px 20px 4px 20px",
     fontFamily,
@@ -158,9 +172,9 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({
   const MAYA_LEFT  = isRtl ? 60 : undefined;
 
   // Lines positioned from TOP so nothing clips at the bottom
-  const LINE1_TOP = height * 0.52;  // ~56% down
-  const LINE2_TOP = height * 0.68;  // ~68% down  ← was too close to bottom before
-  const MAYA_TOP  = height * 0.58;  // right side, middle
+  const LINE1_TOP = height * (isPortrait ? 0.4 : 0.52);
+  const LINE2_TOP = height * (isPortrait ? 0.5 : 0.68);
+  const MAYA_TOP = height * (isPortrait ? 0.45 : 0.58);
 
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
@@ -241,6 +255,8 @@ export const Scene1ColdOpen: React.FC<VideoProps> = ({
         locale={locale}
         opacity={cornerLockupOpacity}
         zIndex={200}
+        top={portraitBrandTop}
+        inset={portraitSafe ? portraitSafe.left : undefined}
       />
     </AbsoluteFill>
   );

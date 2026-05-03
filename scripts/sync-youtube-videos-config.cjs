@@ -19,6 +19,7 @@ const { readFullVideoLocales } = require("./lib/read-supported-locales.cjs");
 const {
   getStoreListingForYoutube,
   youtubeTitleFromStore,
+  youtubeTitleBaseFromListing,
 } = require("./lib/store-metadata-for-youtube.cjs");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -50,7 +51,8 @@ function storeBackedTitleAndDescription(locale, theme) {
       description: FALLBACK_DESCRIPTION,
     };
   }
-  const title = youtubeTitleFromStore(listing.title, theme);
+  const titleBase = youtubeTitleBaseFromListing(listing);
+  const title = youtubeTitleFromStore(titleBase, theme);
   const description = listing.description.slice(0, 5000);
   return { title, description };
 }

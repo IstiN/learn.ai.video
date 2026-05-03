@@ -25,6 +25,7 @@ import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
 import { scene4SolutionChatPath } from "../config/scene-assets";
+import { useSplitPanels } from "../layout/useSplitPanels";
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
@@ -39,7 +40,8 @@ const Bubble: React.FC<{
   startFrame: number;
   fontSize?: number;
   dir?: "ltr" | "rtl";
-}> = ({ text, align, color, bg, borderColor, startFrame, fontSize = 26, dir = "ltr" }) => {
+  maxWidth?: number;
+}> = ({ text, align, color, bg, borderColor, startFrame, fontSize = 26, dir = "ltr", maxWidth = 560 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - startFrame, fps, config: { damping: 14, stiffness: 160 } });
@@ -52,7 +54,7 @@ const Bubble: React.FC<{
       transform: `scale(${scale})`,
       transformOrigin: align === "left" ? "top left" : "top right",
       opacity,
-      maxWidth: 560,
+      maxWidth,
       padding: "18px 24px",
       borderRadius: align === "left" ? "18px 18px 18px 4px" : "18px 18px 4px 18px",
       fontFamily, fontSize, fontWeight: 600, lineHeight: 1.45,
@@ -478,6 +480,10 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
   const [s4Badge1, s4Badge2, s4Badge3] = badgeTriple(locale, "s4_badge");
+  const panels = useSplitPanels(isRtl);
+  const v = panels.visual;
+  const c = panels.copy;
+  const isPortrait = panels.aspect === "portrait";
 
   const BANNER_START = 0;
   const MAYA1_START = 3.0 * fps;
@@ -498,28 +504,43 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
 
   const COL_GAP_BASE = 28;
   const STACK_GAP = 16;
-  const maxGridH = Math.round(height * 0.58);
+  const maxGridH = Math.round((isPortrait ? v.height : height) * (isPortrait ? 0.9 : 0.58));
 
-  const baseTopRowH = Math.round(height * 0.28);
-  const baseBrowserW = Math.round(Math.min(width * 0.22, 340));
+  const baseTopRowH = Math.round((isPortrait ? v.height * 0.34 : height * 0.28));
+  const baseBrowserW = Math.round(
+    Math.min(isPortrait ? v.width * 0.42 : width * 0.22, isPortrait ? 300 : 340)
+  );
   const basePhoneW = Math.round(baseTopRowH * IOS_ASPECT);
   const baseTopRowW = baseBrowserW + COL_GAP_BASE + basePhoneW;
   const baseTabletH = Math.round(baseTopRowW / TABLET_ASPECT);
   const baseGridH = baseTopRowH + STACK_GAP + baseTabletH;
 
   const gridScale = baseGridH > maxGridH ? maxGridH / baseGridH : 1;
-  const TOP_ROW_H = Math.max(168, Math.round(baseTopRowH * gridScale));
-  const BROWSER_W = Math.max(132, Math.round(baseBrowserW * gridScale));
-  const COL_GAP = Math.max(18, Math.round(COL_GAP_BASE * gridScale));
-  const BROWSER_H = TOP_ROW_H;
-  const phoneH = TOP_ROW_H;
-  const phoneW = Math.round(phoneH * IOS_ASPECT);
-  const gridOuterW = BROWSER_W + COL_GAP + phoneW;
-  const tabletW = gridOuterW;
-  const tabletH = Math.round(tabletW / TABLET_ASPECT);
+  let TOP_ROW_H = Math.max(168, Math.round(baseTopRowH * gridScale));
+  let BROWSER_W = Math.max(132, Math.round(baseBrowserW * gridScale));
+  let COL_GAP = Math.max(18, Math.round(COL_GAP_BASE * gridScale));
+  let phoneH = TOP_ROW_H;
+  let phoneW = Math.round(phoneH * IOS_ASPECT);
+  let gridOuterW = BROWSER_W + COL_GAP + phoneW;
+  let tabletW = gridOuterW;
+  let tabletH = Math.round(tabletW / TABLET_ASPECT);
 
-  const LEFT_W = gridOuterW + 104;
-  const RIGHT_W = width - LEFT_W - 40;
+  if (isPortrait && gridOuterW > v.width - 36) {
+    const ws = (v.width - 36) / gridOuterW;
+    TOP_ROW_H = Math.max(130, Math.round(TOP_ROW_H * ws));
+    BROWSER_W = Math.max(108, Math.round(BROWSER_W * ws));
+    COL_GAP = Math.max(12, Math.round(COL_GAP * ws));
+    phoneH = TOP_ROW_H;
+    phoneW = Math.round(phoneH * IOS_ASPECT);
+    gridOuterW = BROWSER_W + COL_GAP + phoneW;
+    tabletW = gridOuterW;
+    tabletH = Math.round(tabletW / TABLET_ASPECT);
+  }
+
+  const bubbleMax = Math.max(220, Math.min(560, c.width - 24 - 58));
+  const labelFont = isPortrait ? 16 : 20;
+  const copyGap = isPortrait ? 10 : 20;
+  const copyPad = isPortrait ? "4px 10px 0" : "0 32px";
 
   const browserSpring = spring({ frame: frame - BANNER_START, fps, config: { damping: 18, stiffness: 100 } });
   const browserX = interpolate(browserSpring, [0, 1], [isRtl ? 70 : -70, 0], {
@@ -562,9 +583,6 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
   const avatarGradientMaya = `linear-gradient(135deg, ${colors.brandDark}, #3B82F6)`;
   const avatarSize = 58;
 
-  const leftStart = isRtl ? width - LEFT_W - 20 : 20;
-  const rightStart = isRtl ? 20 : LEFT_W + 60;
-
   return (
     <AbsoluteFill style={{ ...bgStyle, overflow: "hidden" }}>
       {includeBackgroundMusic && (
@@ -580,19 +598,23 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
 
       <div style={{
         position: "absolute",
-        left: isRtl ? width - LEFT_W - 60 : -40, top: height * 0.05,
-        width: LEFT_W + 80, height: height * 0.9,
+        left: v.left - 20,
+        top: isPortrait ? v.top + v.height * 0.03 : height * 0.05,
+        width: v.width + 40,
+        height: isPortrait ? v.height * 0.94 : height * 0.9,
         borderRadius: "50%",
         background: colors.brand,
         opacity: theme === "dark" ? 0.07 : 0.05,
         filter: "blur(80px)",
       }} />
 
-      {/* ── Left: [share | phone] / [tablet]; goldens staggered after save ── */}
+      {/* ── Visual: [share | phone] / [tablet]; goldens staggered after save ── */}
       <div style={{
         position: "absolute",
-        left: leftStart, top: 0,
-        width: LEFT_W, height,
+        left: v.left,
+        top: v.top,
+        width: v.width,
+        height: v.height,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -629,7 +651,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
               shareTapFrame={SHARE_TAP}
               savedShowFrame={SAVED_SHOW}
               width={BROWSER_W}
-              height={BROWSER_H}
+              height={TOP_ROW_H}
             />
             <div style={{
               transform: `translateY(${phoneY}px)`,
@@ -665,15 +687,19 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
         </div>
       </div>
 
-      {/* ── Right panel: unchanged ── */}
+      {/* ── Copy panel ── */}
       <div style={{
         position: "absolute",
-        left: isRtl ? undefined : rightStart,
-        right: isRtl ? width - rightStart - RIGHT_W : undefined,
-        top: 0, width: RIGHT_W, height,
+        left: c.left,
+        top: c.top,
+        width: c.width,
+        height: c.height,
         display: "flex", flexDirection: "column",
-        justifyContent: "center", gap: 20,
-        padding: "0 32px",
+        justifyContent: isPortrait ? "flex-start" : "center",
+        gap: copyGap,
+        padding: copyPad,
+        overflow: "hidden",
+        boxSizing: "border-box",
       }}>
         <div style={{
           display: "flex", alignItems: "center", gap: 10,
@@ -681,7 +707,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
           flexDirection: isRtl ? "row-reverse" : "row",
         }}>
           <HomeworkIcon size={28} color={colors.brand} />
-          <span style={{ fontFamily, fontWeight: 700, fontSize: 20, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
+          <span style={{ fontFamily, fontWeight: 700, fontSize: labelFont, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
             {t(locale, "s4_widget_title")}
           </span>
         </div>
@@ -699,6 +725,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
             startFrame={MAYA1_START}
             fontSize={24}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -715,6 +742,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
             startFrame={ALEX1_START}
             fontSize={24}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -731,6 +759,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
             startFrame={ALEX2_START}
             fontSize={24}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -747,6 +776,7 @@ export const Scene4ScanSolve: React.FC<VideoProps> = ({
             startFrame={MAYA2_START}
             fontSize={24}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 

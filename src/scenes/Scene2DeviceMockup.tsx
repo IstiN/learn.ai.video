@@ -18,6 +18,7 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { UserAvatarIcon } from "../components/AppIcons";
 import { MusicTrack } from "../components/MusicTrack";
 import { scene2MultidevicePath } from "../config/scene-assets";
+import { useSplitPanels } from "../layout/useSplitPanels";
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
@@ -135,7 +136,8 @@ const Bubble: React.FC<{
   endFrame: number;
   fontSize?: number;
   dir: "ltr" | "rtl";
-}> = ({ text, align, color, bg, borderColor, startFrame, endFrame, fontSize = 34, dir }) => {
+  maxWidth?: number;
+}> = ({ text, align, color, bg, borderColor, startFrame, endFrame, fontSize = 34, dir, maxWidth = 560 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -161,7 +163,7 @@ const Bubble: React.FC<{
         transform: `scale(${scaleProgress})`,
         transformOrigin: align === "left" ? "bottom left" : "bottom right",
         opacity,
-        maxWidth: 560,
+        maxWidth,
         padding: "18px 26px",
         borderRadius:
           align === "left" ? "20px 20px 20px 4px" : "20px 20px 4px 20px",
@@ -241,6 +243,10 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
   const lang = webOutputLang(locale);
+  const panels = useSplitPanels(isRtl);
+  const v = panels.visual;
+  const c = panels.copy;
+  const isPortrait = panels.aspect === "portrait";
 
   // ── Timings — spread across full 16s to match voiceover ─────────────────
   const MOCKUP_START  = 0;
@@ -272,21 +278,47 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
       ? { background: "linear-gradient(140deg, #1a1d35 0%, #2d3352 50%, #2a2550 100%)" }
       : { background: "linear-gradient(140deg, #f0f4ff 0%, #f6f8ff 50%, #ede8ff 100%)" };
 
-  // Layout: image left (~55%), dialog right — flip for RTL
-  // Store multidevice goldens: 2560×1440 (flutter_app/test/goldens/store/en/multidevice_*.png)
-  // Cap chrome width so dialog panel has enough room
+  // Layout: landscape — image left, dialog right (RTL flip). Portrait — visual top / copy bottom.
   const IMG_ASPECT = 2560 / 1440;
   const TITLE_BAR_H = 42;
-  const CHROME_W = Math.round(width * 0.44);   // ~845px — leaves clear gap before dialog
-  const SCREENSHOT_H = Math.round(CHROME_W / IMG_ASPECT);
-  const CHROME_H = SCREENSHOT_H + TITLE_BAR_H;
+  let CHROME_W: number;
+  let SCREENSHOT_H: number;
+  let CHROME_H: number;
+  let IMAGE_W: number;
+  let DIALOG_W: number;
+  let imageLeft: number;
+  let dialogLeft: number;
 
-  const IMAGE_W = CHROME_W + 80;               // column width = chrome + gap
-  const DIALOG_W = width - IMAGE_W - 60;        // dialog gets the remaining right portion
-  const imageLeft = isRtl ? width - IMAGE_W + 10 : 20;
-  const dialogLeft = isRtl ? 30 : IMAGE_W + 60;
+  if (isPortrait) {
+    CHROME_W = Math.round(Math.min(v.width - 48, v.width * 0.94));
+    SCREENSHOT_H = Math.round(CHROME_W / IMG_ASPECT);
+    CHROME_H = SCREENSHOT_H + TITLE_BAR_H;
+    const maxChromeH = Math.round(v.height * 0.88);
+    if (CHROME_H > maxChromeH) {
+      const s = maxChromeH / CHROME_H;
+      CHROME_W = Math.max(280, Math.round(CHROME_W * s));
+      SCREENSHOT_H = Math.round(CHROME_W / IMG_ASPECT);
+      CHROME_H = SCREENSHOT_H + TITLE_BAR_H;
+    }
+    IMAGE_W = v.width;
+    DIALOG_W = c.width;
+    imageLeft = v.left;
+    dialogLeft = c.left;
+  } else {
+    CHROME_W = Math.round(width * 0.44);
+    SCREENSHOT_H = Math.round(CHROME_W / IMG_ASPECT);
+    CHROME_H = SCREENSHOT_H + TITLE_BAR_H;
+    IMAGE_W = CHROME_W + 80;
+    DIALOG_W = width - IMAGE_W - 60;
+    imageLeft = isRtl ? width - IMAGE_W + 10 : 20;
+    dialogLeft = isRtl ? 30 : IMAGE_W + 60;
+  }
 
   const avatarSize = 62;
+  const bubbleMax = Math.max(220, Math.min(560, DIALOG_W - 24 - avatarSize));
+  const dialogGap = isPortrait ? 12 : 24;
+  const dialogPad = isPortrait ? "4px 12px 0" : "0 20px";
+  const dialogJustify = isPortrait ? "flex-start" : "center";
   const avatarGradientAlex = "linear-gradient(135deg, #e9631a, #c0392b)";
   const avatarGradientMaya = `linear-gradient(135deg, ${colors.brandDark}, #3B82F6)`;
 
@@ -322,10 +354,19 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
       <div
         style={{
           position: "absolute",
-          left: isRtl ? width * 0.3 : -60,
-          top: height * 0.1,
-          width: IMAGE_W + 120,
-          height: height * 0.9,
+          ...(isPortrait
+            ? {
+                left: v.left - 24,
+                top: v.top + v.height * 0.05,
+                width: v.width + 48,
+                height: v.height * 0.9,
+              }
+            : {
+                left: isRtl ? width * 0.3 : -60,
+                top: height * 0.1,
+                width: IMAGE_W + 120,
+                height: height * 0.9,
+              }),
           borderRadius: "50%",
           background: colors.brand,
           opacity: theme === "dark" ? 0.07 : 0.05,
@@ -337,16 +378,16 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
       <div
         style={{
           position: "absolute",
-          left: imageLeft,
-          top: 0,
-          width: IMAGE_W,
-          height: height,
+          left: isPortrait ? v.left : imageLeft,
+          top: isPortrait ? v.top : 0,
+          width: isPortrait ? v.width : IMAGE_W,
+          height: isPortrait ? v.height : height,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           transform: `translateY(${mockupY}px)`,
           opacity: mockupOpacity,
-          paddingLeft: 40,
+          paddingLeft: isPortrait ? 0 : 40,
           boxSizing: "border-box",
         }}
       >
@@ -445,20 +486,22 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
         style={{
           position: "absolute",
           left: dialogLeft,
-          top: 0,
+          top: isPortrait ? c.top : 0,
           width: DIALOG_W,
-          height: height,
+          height: isPortrait ? c.height : height,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          gap: 24,
-          padding: "0 20px",
+          justifyContent: dialogJustify,
+          gap: dialogGap,
+          padding: dialogPad,
+          overflow: isPortrait ? "hidden" : undefined,
+          boxSizing: "border-box",
         }}
       >
         {/* Logo lockup — top of panel */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4, flexDirection: isRtl ? "row-reverse" : "row", opacity: mockupOpacity }}>
           <AppLogoIcon size={52} animated />
-          <span style={{ fontFamily, fontWeight: 800, fontSize: 36, color: colors.brandDark, letterSpacing: "-0.5px" }}>
+          <span style={{ fontFamily, fontWeight: 800, fontSize: isPortrait ? 28 : 36, color: colors.brandDark, letterSpacing: "-0.5px" }}>
             FamilyLearn.AI
           </span>
         </div>
@@ -476,8 +519,9 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
             borderColor={`${colors.brand}33`}
             startFrame={MAYA1_START}
             endFrame={lastFrame}
-            fontSize={28}
+            fontSize={isPortrait ? 22 : 28}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -532,8 +576,9 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
             borderColor={`${colors.brand}33`}
             startFrame={ALEX_START}
             endFrame={lastFrame}
-            fontSize={28}
+            fontSize={isPortrait ? 22 : 28}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -550,8 +595,9 @@ export const Scene2DeviceMockup: React.FC<VideoProps> = ({
             borderColor={`${colors.brand}33`}
             startFrame={MAYA2_START}
             endFrame={lastFrame}
-            fontSize={28}
+            fontSize={isPortrait ? 22 : 28}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
       </div>

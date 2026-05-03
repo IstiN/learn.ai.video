@@ -6,6 +6,7 @@
 import React from "react";
 import { AbsoluteFill, Sequence, useCurrentFrame } from "remotion";
 import { VideoProps } from "../types";
+import { VideoAspectContext } from "../context/VideoAspectContext";
 import { GlobalBrandLogoOverlay } from "../components/GlobalBrandLogoOverlay";
 import { Scene1ColdOpen } from "./Scene1ColdOpen";
 import { Scene2DeviceMockup } from "./Scene2DeviceMockup";
@@ -57,11 +58,13 @@ const SLL = S7 + SCENE7_FRAMES;
 const S8 = SLL + SCENE_LL_FRAMES;
 const S9 = S8 + SCENE8_FRAMES;
 
-export const FullVideo: React.FC<VideoProps> = ({ theme, locale }) => {
+export const FullVideo: React.FC<VideoProps> = ({ theme, locale, aspect }) => {
   /** Composition timeline at FullVideo root (overlay is 0 during Scene 1 — corner lives in Scene1ColdOpen). */
   const compositionFrame = useCurrentFrame();
+  const aspectMode = aspect ?? "landscape";
 
   return (
+    <VideoAspectContext.Provider value={aspectMode}>
     <AbsoluteFill>
       {/* Continuous music across all scenes */}
       <MusicTrack offsetFrames={0} volume={0.3} loop />
@@ -163,5 +166,6 @@ export const FullVideo: React.FC<VideoProps> = ({ theme, locale }) => {
         />
       </div>
     </AbsoluteFill>
+    </VideoAspectContext.Provider>
   );
 };

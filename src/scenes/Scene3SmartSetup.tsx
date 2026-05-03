@@ -34,6 +34,7 @@ import {
   scene3SubjectsStorePath,
 } from "../config/scene-assets";
 import { StoreTabletFrameLayers } from "../components/StoreDeviceFrames";
+import { useSplitPanels } from "../layout/useSplitPanels";
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
@@ -63,7 +64,8 @@ const Bubble: React.FC<{
   startFrame: number;
   fontSize?: number;
   dir?: "ltr" | "rtl";
-}> = ({ text, align, color, bg, borderColor, startFrame, fontSize = 23, dir = "ltr" }) => {
+  maxWidth?: number;
+}> = ({ text, align, color, bg, borderColor, startFrame, fontSize = 23, dir = "ltr", maxWidth = 520 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - startFrame, fps, config: { damping: 14, stiffness: 160 } });
@@ -76,7 +78,7 @@ const Bubble: React.FC<{
       transform: `scale(${scale})`,
       transformOrigin: align === "left" ? "top left" : "top right",
       opacity,
-      maxWidth: 520,
+      maxWidth,
       padding: "16px 22px",
       borderRadius: align === "left" ? "18px 18px 18px 4px" : "18px 18px 4px 18px",
       fontFamily, fontSize, fontWeight: 600, lineHeight: 1.45,
@@ -427,20 +429,26 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
   const [s3Badge1, s3Badge2, s3Badge3] = badgeTriple(locale, "s3_badge");
+  const panels = useSplitPanels(isRtl);
+  const v = panels.visual;
+  const c = panels.copy;
+  const isPortrait = panels.aspect === "portrait";
 
   // ── Device row — match Scene 5 (equal height, scale if row wider than half frame) ──
   const TABLET_ASPECT = 2732 / 2048;
   const IOS_ASPECT = 1284 / 2778;
-  const COL_GAP = 28;
+  const COL_GAP = isPortrait ? 16 : 28;
   const LEFT_PAD = 40;
 
-  let rowH = Math.round(height * 0.72);
+  let rowH = Math.round(isPortrait ? v.height * 0.88 : height * 0.72);
   let phoneH = rowH;
   let phoneW = Math.round(phoneH * IOS_ASPECT);
   let tabletH = rowH;
   let tabletW = Math.round(tabletH * TABLET_ASPECT);
   let rowW = tabletW + COL_GAP + phoneW;
-  const maxRowW = Math.round(width * 0.5);
+  const maxRowW = Math.round(
+    isPortrait ? v.width * 0.98 : Math.min(width * 0.5, v.width * 0.96)
+  );
   if (rowW > maxRowW) {
     const s = maxRowW / rowW;
     rowH = Math.round(rowH * s);
@@ -460,14 +468,12 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
   const AFTER_SHOT = T.CHAT_FLASH + Math.round(0.52 * fps);
   const CAMERA_HIDE = AFTER_SHOT + Math.round(0.38 * fps);
 
-  // ── Layout ─────────────────────────────────────────────────────────────────
-  const LEFT_W = rowW + LEFT_PAD;
-  const RIGHT_W = width - LEFT_W - 80;
-
-  const leftStart = isRtl ? width - LEFT_W - 20 : 20;
-  const rightStart = isRtl ? 20 : LEFT_W + 60;
-
-  const centerPhoneX = (LEFT_W - phoneW) / 2;
+  // ── Layout band for phone/tablet animation (centered in visual panel) ─────────
+  const leftBandW = rowW + LEFT_PAD;
+  const centerPhoneX = (leftBandW - phoneW) / 2;
+  const bubbleMax = Math.max(220, Math.min(520, c.width - 24 - 52));
+  const labelFont = isPortrait ? 15 : 18;
+  const visualMidY = (y: number) => (v.height - y) / 2;
 
   // ── Banner (right panel label only) ───────────────────────────────────────
   const bannerOpacity = interpolate(frame, [T.BANNER_IN, T.BANNER_IN + 0.6 * fps], [0, 1], {
@@ -557,33 +563,35 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
         backgroundSize: "80px 80px",
       }} />
 
-      {/* Ambient glow left */}
+      {/* Ambient glow — visual band */}
       <div style={{
         position: "absolute",
-        left: isRtl ? "auto" : -40, right: isRtl ? -40 : "auto",
-        top: height * 0.1, width: LEFT_W + 80, height: height * 0.8,
+        left: v.left - 20,
+        top: isPortrait ? v.top + v.height * 0.04 : height * 0.1,
+        width: v.width + 40,
+        height: isPortrait ? v.height * 0.92 : height * 0.8,
         borderRadius: "50%", background: colors.brand,
         opacity: theme === "dark" ? 0.06 : 0.04, filter: "blur(80px)",
       }} />
 
-      {/* ── Left: tablet (Scene 5–style size) | phone — tablet left, phone right (LTR) ── */}
+      {/* ── Visual: tablet | phone — tablet left, phone right (LTR) ── */}
       <div
         style={{
           position: "absolute",
-          left: isRtl ? undefined : leftStart,
-          right: isRtl ? width - leftStart - LEFT_W : undefined,
-          top: 0,
-          width: LEFT_W,
-          height,
+          left: v.left,
+          top: v.top,
+          width: v.width,
+          height: v.height,
         }}
       >
+        <div style={{ position: "relative", width: leftBandW, height: "100%", margin: "0 auto" }}>
         {/* Tablet — homework ↔ subjects crossfade (same frame style as Scene 5) */}
         <div
           style={{
             position: "absolute",
             left: isRtl ? undefined : 0,
             right: isRtl ? 0 : undefined,
-            top: (height - tabletH) / 2,
+            top: visualMidY(tabletH),
             opacity: tabletOpacity,
             transform: `translateX(${tabletSlideX}px)`,
             pointerEvents: "none",
@@ -607,7 +615,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
           style={{
             position: "absolute",
             ...(isRtl ? { right: phoneEdge } : { left: phoneEdge }),
-            top: (height - phoneH) / 2,
+            top: visualMidY(phoneH),
             width: phoneW,
             height: phoneH,
             transform: `translateY(${phoneY}px)`,
@@ -695,17 +703,22 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
             }}
           />
         </div>
+        </div>
       </div>
 
-      {/* ── Right panel: dialog + chat widget ── */}
+      {/* ── Copy: dialog + chat widget ── */}
       <div style={{
         position: "absolute",
-        left: isRtl ? undefined : rightStart,
-        right: isRtl ? width - rightStart - RIGHT_W : undefined,
-        top: 0, width: RIGHT_W, height,
+        left: c.left,
+        top: c.top,
+        width: c.width,
+        height: c.height,
         display: "flex", flexDirection: "column",
-        justifyContent: "center", gap: 14,
-        padding: "0 28px",
+        justifyContent: isPortrait ? "flex-start" : "center",
+        gap: isPortrait ? 8 : 14,
+        padding: isPortrait ? "4px 10px 0" : "0 28px",
+        overflow: "hidden",
+        boxSizing: "border-box",
       }}>
         {/* Scene label */}
         <div style={{
@@ -717,7 +730,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
             <path d="M3 7V5a2 2 0 0 1 2-2h2M3 17v2a2 2 0 0 0 2 2h2M17 3h2a2 2 0 0 1 2 2v2M17 21h2a2 2 0 0 0 2-2v-2M7 12h10"
               stroke={colors.brand} strokeWidth="2" strokeLinecap="round"/>
           </svg>
-          <span style={{ fontFamily, fontWeight: 700, fontSize: 18, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
+          <span style={{ fontFamily, fontWeight: 700, fontSize: labelFont, color: colors.brand, letterSpacing: "0.5px", textTransform: "uppercase" }}>
             {t(locale, "s3_widget_title")}
           </span>
         </div>
@@ -735,6 +748,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
             borderColor={`${colors.brand}33`}
             startFrame={T.DIALOG_ALEX1}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -751,6 +765,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
             borderColor={`${colors.brand}33`}
             startFrame={T.DIALOG_MAYA1}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -780,6 +795,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
             borderColor={`${colors.brand}33`}
             startFrame={T.DIALOG_ALEX2}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 
@@ -796,6 +812,7 @@ export const Scene3SmartSetup: React.FC<VideoProps> = ({
             borderColor={`${colors.brand}33`}
             startFrame={T.DIALOG_MAYA2}
             dir={dir}
+            maxWidth={bubbleMax}
           />
         </div>
 

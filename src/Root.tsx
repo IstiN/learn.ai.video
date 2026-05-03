@@ -18,10 +18,16 @@ import {
 } from "./scenes/FullVideo";
 import { SUPPORTED_LOCALES } from "./i18n/translations";
 import { VideoProps } from "./types";
+import {
+  LANDSCAPE_HEIGHT,
+  LANDSCAPE_WIDTH,
+  PORTRAIT_HEIGHT,
+  PORTRAIT_WIDTH,
+} from "./layout/twoPanelLayout";
 
 const FPS = 30;
-const WIDTH = 1920;
-const HEIGHT = 1080;
+const WIDTH = LANDSCAPE_WIDTH;
+const HEIGHT = LANDSCAPE_HEIGHT;
 
 const TOTAL_FRAMES =
   SCENE1_FRAMES + SCENE2_FRAMES + SCENE3_FRAMES + SCENE4_FRAMES +
@@ -84,6 +90,53 @@ export const RemotionRoot: React.FC = () => {
             width={WIDTH}
             height={HEIGHT}
             defaultProps={{ theme: "dark", locale } satisfies VideoProps}
+          />
+        ))}
+      </Folder>
+
+      {/* ── Full video portrait 9:16 (same timeline, layout via aspect) ── */}
+      <Composition
+        id="FullVideoPortrait"
+        component={FullVideo}
+        durationInFrames={TOTAL_FRAMES}
+        fps={FPS}
+        width={PORTRAIT_WIDTH}
+        height={PORTRAIT_HEIGHT}
+        defaultProps={
+          { theme: "light", locale: "en-US", aspect: "portrait" } satisfies VideoProps
+        }
+      />
+
+      <Folder name="FullVideoPortrait-Locales-Light">
+        {PREVIEW_LOCALES.map((locale) => (
+          <Composition
+            key={`full-portrait-${locale}`}
+            id={`FullVideoPortrait-${locale}-Light`}
+            component={FullVideo}
+            durationInFrames={TOTAL_FRAMES}
+            fps={FPS}
+            width={PORTRAIT_WIDTH}
+            height={PORTRAIT_HEIGHT}
+            defaultProps={
+              { theme: "light", locale, aspect: "portrait" } satisfies VideoProps
+            }
+          />
+        ))}
+      </Folder>
+
+      <Folder name="FullVideoPortrait-Locales-Dark">
+        {PREVIEW_LOCALES.map((locale) => (
+          <Composition
+            key={`full-portrait-dark-${locale}`}
+            id={`FullVideoPortrait-${locale}-Dark`}
+            component={FullVideo}
+            durationInFrames={TOTAL_FRAMES}
+            fps={FPS}
+            width={PORTRAIT_WIDTH}
+            height={PORTRAIT_HEIGHT}
+            defaultProps={
+              { theme: "dark", locale, aspect: "portrait" } satisfies VideoProps
+            }
           />
         ))}
       </Folder>

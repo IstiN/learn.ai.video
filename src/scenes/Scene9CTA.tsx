@@ -25,6 +25,8 @@ import { AppLogoIcon } from "../components/AppLogoIcon";
 import { MusicTrack } from "../components/MusicTrack";
 import { Audio } from "@remotion/media";
 import { getSceneAudio } from "../audio";
+import { useVideoAspect } from "../context/VideoAspectContext";
+import { getPortraitSocialSafeInsets } from "../layout/twoPanelLayout";
 
 const RTL_LOCALES = new Set(["ar", "he"]);
 
@@ -96,7 +98,8 @@ const StoreBadge: React.FC<{
   startFrame: number;
   colors: typeof themes["light"];
   theme: "dark" | "light";
-}> = ({ icon, topLine, bottomLine, startFrame, colors, theme }) => {
+  compact?: boolean;
+}> = ({ icon, topLine, bottomLine, startFrame, colors, theme, compact = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - startFrame, fps, config: { damping: 12, stiffness: 180 } });
@@ -108,17 +111,26 @@ const StoreBadge: React.FC<{
   const border = theme === "dark" ? "rgba(255,255,255,0.16)" : `${colors.brand}40`;
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: 12,
-      padding: "14px 24px", borderRadius: 20,
+      display: "flex", alignItems: "center", gap: compact ? 8 : 12,
+      padding: compact ? "10px 14px" : "14px 24px", borderRadius: compact ? 16 : 20,
       background: bg, border: `1.5px solid ${border}`,
       boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
       transform: `scale(${scale})`, opacity, transformOrigin: "center",
-      minWidth: 220,
+      minWidth: compact ? 0 : 220,
+      flex: compact ? "1 1 0" : undefined,
+      maxWidth: compact ? "calc(50% - 6px)" : undefined,
+      boxSizing: "border-box",
     }}>
       {icon}
-      <div>
-        <div style={{ fontFamily, fontSize: 12, fontWeight: 500, color: colors.textMain, opacity: 0.7 }}>{topLine}</div>
-        <div style={{ fontFamily, fontSize: 20, fontWeight: 800, color: colors.textMain }}>{bottomLine}</div>
+      <div style={{ minWidth: 0 }}>
+        <div style={{
+          fontFamily, fontSize: compact ? 10 : 12, fontWeight: 500, color: colors.textMain, opacity: 0.7,
+          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+        }}>{topLine}</div>
+        <div style={{
+          fontFamily, fontSize: compact ? 15 : 20, fontWeight: 800, color: colors.textMain,
+          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+        }}>{bottomLine}</div>
       </div>
     </div>
   );
@@ -154,13 +166,25 @@ const QRRow: React.FC<{
   startFrame: number;
   colors: typeof themes["light"];
   theme: "dark" | "light";
-}> = ({ startFrame, colors, theme }) => {
+  isPortrait?: boolean;
+  /** Content column width — used to size portrait QRs */
+  columnWidth?: number;
+}> = ({ startFrame, colors, theme, isPortrait = false, columnWidth }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width } = useVideoConfig();
 
   const cardBg = theme === "dark" ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.90)";
   const cardBorder = theme === "dark" ? "rgba(255,255,255,0.18)" : `${colors.brand}44`;
   const labelColor = theme === "dark" ? "rgba(255,255,255,0.9)" : colors.textMain;
+
+  const usableW = columnWidth ?? Math.min(width * 0.72, 1060);
+  const interCardGap = isPortrait ? 10 : 24;
+  const qrSize = isPortrait
+    ? Math.max(
+      136,
+      Math.min(200, Math.floor((usableW - 2 * interCardGap - 48) / 3)),
+    )
+    : 150;
 
   const items = [
     {
@@ -181,7 +205,15 @@ const QRRow: React.FC<{
   ];
 
   return (
-    <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+    <div style={{
+      display: "flex",
+      gap: interCardGap,
+      alignItems: "stretch",
+      flexDirection: "row",
+      flexWrap: "nowrap",
+      justifyContent: "center",
+      width: "100%",
+    }}>
       {items.map(({ url, label, icon }, i) => {
         const sf = startFrame + Math.round(i * 0.3 * fps);
         const progress = spring({ frame: frame - sf, fps, config: { damping: 14, stiffness: 160 } });
@@ -192,10 +224,13 @@ const QRRow: React.FC<{
         return (
           <div key={label} style={{
             transform: `scale(${scale})`, opacity, transformOrigin: "bottom center",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-            padding: "16px 16px 14px",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: isPortrait ? 8 : 10,
+            padding: isPortrait ? "12px 10px 10px" : "16px 16px 14px",
+            flex: "1 1 0",
+            minWidth: 0,
+            maxWidth: isPortrait ? "31%" : undefined,
             background: cardBg, border: `1.5px solid ${cardBorder}`,
-            borderRadius: 22,
+            borderRadius: isPortrait ? 18 : 22,
             boxShadow: theme === "dark"
               ? `0 12px 32px rgba(0,0,0,0.35), 0 0 0 1px ${colors.brand}22`
               : `0 12px 32px rgba(99,82,230,0.16), 0 0 0 1px ${colors.brand}18`,
@@ -209,17 +244,18 @@ const QRRow: React.FC<{
             }}>
               {icon}
               <span style={{
-                fontFamily, fontSize: 15, fontWeight: 700,
+                fontFamily, fontSize: isPortrait ? 12 : 15, fontWeight: 700,
                 color: labelColor, letterSpacing: "0.01em",
+                textAlign: "center", lineHeight: 1.2,
               }}>{label}</span>
             </div>
             {/* QR code */}
             <div style={{
-              padding: 10, background: "#ffffff", borderRadius: 12,
+              padding: isPortrait ? 6 : 10, background: "#ffffff", borderRadius: 12,
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             }}>
-              <QRCode value={url} size={150} bgColor="#ffffff" fgColor="#1a1830" level="M" />
+              <QRCode value={url} size={qrSize} bgColor="#ffffff" fgColor="#1a1830" level="M" />
             </div>
           </div>
         );
@@ -239,6 +275,8 @@ export const Scene9CTA: React.FC<VideoProps> = ({
   const colors = themes[theme];
   const isRtl = RTL_LOCALES.has(locale.split("-")[0]);
   const dir = isRtl ? "rtl" : "ltr";
+  const aspect = useVideoAspect();
+  const isPortrait = aspect === "portrait";
 
   const logoSpring = spring({ frame: frame - T.LOGO_IN, fps, config: { damping: 16, stiffness: 120 } });
   const logoScale = interpolate(logoSpring, [0, 1], [0.5, 1]);
@@ -254,8 +292,19 @@ export const Scene9CTA: React.FC<VideoProps> = ({
   const avatarGradientMaya = `linear-gradient(135deg, ${colors.brandDark}, #3B82F6)`;
   const avatarSize = 52;
 
-  const CONTENT_W = Math.min(width * 0.72, 1060);
-  const LEFT_X = (width - CONTENT_W) / 2;
+  const portraitSafe = isPortrait ? getPortraitSocialSafeInsets(width, height) : null;
+  const CONTENT_W = isPortrait
+    ? width - portraitSafe!.left - portraitSafe!.right
+    : Math.min(width * 0.72, 1060);
+  const LEFT_X = isPortrait ? portraitSafe!.left : (width - CONTENT_W) / 2;
+  const contentTop = isPortrait ? portraitSafe!.top : 0;
+  const contentHeight = isPortrait
+    ? height - portraitSafe!.top - portraitSafe!.bottom
+    : height;
+  const s9BubbleMax = Math.max(220, Math.min(480, CONTENT_W - 24 - 52));
+  const heroTitleSize = isPortrait ? 26 : 32;
+  const heroTaglineSize = isPortrait ? 14 : 16;
+  const mainGap = isPortrait ? 12 : 18;
 
   // Glow pulse for CTA section
   const glowPulse = Math.sin(frame * 0.04) * 0.02 + 0.06;
@@ -286,10 +335,15 @@ export const Scene9CTA: React.FC<VideoProps> = ({
       {/* Main content column */}
       <div style={{
         position: "absolute",
-        left: LEFT_X, top: 0, width: CONTENT_W, height,
+        left: LEFT_X,
+        top: contentTop,
+        width: CONTENT_W,
+        height: contentHeight,
         display: "flex", flexDirection: "column",
-        justifyContent: "center", gap: 18,
+        justifyContent: isPortrait ? "flex-start" : "center",
+        gap: mainGap,
         direction: dir,
+        boxSizing: "border-box",
       }}>
         {/* Logo + app name */}
         <div style={{
@@ -307,10 +361,10 @@ export const Scene9CTA: React.FC<VideoProps> = ({
             <AppLogoIcon size={46} animated={false} />
           </div>
           <div>
-            <div style={{ fontFamily, fontWeight: 800, fontSize: 32, color: colors.textMain, lineHeight: 1.1 }}>
+            <div style={{ fontFamily, fontWeight: 800, fontSize: heroTitleSize, color: colors.textMain, lineHeight: 1.1 }}>
               {t(locale, "app_name")}
             </div>
-            <div style={{ fontFamily, fontWeight: 500, fontSize: 16, color: colors.textMain, opacity: 0.6 }}>
+            <div style={{ fontFamily, fontWeight: 500, fontSize: heroTaglineSize, color: colors.textMain, opacity: 0.6 }}>
               {t(locale, "s9_hero_tagline")}
             </div>
           </div>
@@ -323,7 +377,7 @@ export const Scene9CTA: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s9_alex1")} align={isRtl ? "left" : "right"}
             color={colors.textMain} bg={colors.bubbleAlex} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_ALEX1} dir={dir} />
+            startFrame={T.DIALOG_ALEX1} dir={dir} maxWidth={s9BubbleMax} />
         </div>
 
         {/* Maya line 1 */}
@@ -333,12 +387,18 @@ export const Scene9CTA: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s9_maya1")} align={isRtl ? "right" : "left"}
             color={colors.textMain} bg={colors.bubbleMaya} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_MAYA1} dir={dir} />
+            startFrame={T.DIALOG_MAYA1} dir={dir} maxWidth={s9BubbleMax} />
         </div>
 
         {/* QR codes — website, App Store, Google Play */}
         <div style={{ paddingLeft: isRtl ? 0 : avatarSize + 10, paddingRight: isRtl ? avatarSize + 10 : 0 }}>
-          <QRRow startFrame={T.RATINGS_IN} colors={colors} theme={theme} />
+          <QRRow
+            startFrame={T.RATINGS_IN}
+            colors={colors}
+            theme={theme}
+            isPortrait={isPortrait}
+            columnWidth={CONTENT_W - avatarSize - 10}
+          />
         </div>
 
         {/* Alex line 2 */}
@@ -348,7 +408,7 @@ export const Scene9CTA: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s9_alex2")} align={isRtl ? "left" : "right"}
             color={colors.textMain} bg={colors.bubbleAlex} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_ALEX2} dir={dir} />
+            startFrame={T.DIALOG_ALEX2} dir={dir} maxWidth={s9BubbleMax} />
         </div>
 
         {/* Maya line 2 — closing */}
@@ -358,19 +418,23 @@ export const Scene9CTA: React.FC<VideoProps> = ({
           </Avatar>
           <Bubble text={t(locale, "s9_maya2")} align={isRtl ? "right" : "left"}
             color={colors.textMain} bg={colors.bubbleMaya} borderColor={`${colors.brand}33`}
-            startFrame={T.DIALOG_MAYA2} dir={dir} />
+            startFrame={T.DIALOG_MAYA2} dir={dir} maxWidth={s9BubbleMax} />
         </div>
 
-        {/* Store download badges */}
+        {/* Store download badges — single row, centered */}
         <div style={{
-          display: "flex", gap: 16, flexWrap: "wrap",
+          display: "flex", gap: isPortrait ? 10 : 16, flexWrap: "nowrap",
           flexDirection: isRtl ? "row-reverse" : "row",
+          justifyContent: "center",
+          alignItems: "stretch",
+          width: "100%",
           paddingLeft: isRtl ? 0 : avatarSize + 10,
           paddingRight: isRtl ? avatarSize + 10 : 0,
+          boxSizing: "border-box",
         }}>
           <StoreBadge
             startFrame={T.BADGES_IN}
-            colors={colors} theme={theme}
+            colors={colors} theme={theme} compact={isPortrait}
             topLine={t(locale, "s9_store_apple_topline")}
             bottomLine={t(locale, "s9_store_apple_bottomline")}
             icon={
@@ -382,7 +446,7 @@ export const Scene9CTA: React.FC<VideoProps> = ({
           />
           <StoreBadge
             startFrame={T.BADGES_IN + Math.round(0.25 * fps)}
-            colors={colors} theme={theme}
+            colors={colors} theme={theme} compact={isPortrait}
             topLine={t(locale, "s9_store_google_topline")}
             bottomLine={t(locale, "s9_store_google_bottomline")}
             icon={

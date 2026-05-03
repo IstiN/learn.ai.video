@@ -1,7 +1,9 @@
 import React from "react";
 import { useVideoConfig } from "remotion";
 import { VideoProps } from "../types";
+import { useVideoAspect } from "../context/VideoAspectContext";
 import { globalBrandLogoOverlayOpacity } from "../config/scene1BrandMotion";
+import { getPortraitBrandLockupTop, getPortraitSocialSafeInsets } from "../layout/twoPanelLayout";
 import { CornerBrandLockup } from "./FamilyLearnBrandMark";
 
 export type GlobalBrandLogoOverlayProps = VideoProps & {
@@ -19,8 +21,20 @@ export const GlobalBrandLogoOverlay: React.FC<GlobalBrandLogoOverlayProps> = ({
   locale,
   compositionFrame,
 }) => {
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const aspect = useVideoAspect();
   const opacity = globalBrandLogoOverlayOpacity(compositionFrame, fps);
+  const isPortrait = aspect === "portrait";
+  const portraitSafe = isPortrait ? getPortraitSocialSafeInsets(width, height) : null;
+  const brandTop = isPortrait ? getPortraitBrandLockupTop(width, height) : undefined;
 
-  return <CornerBrandLockup theme={theme} locale={locale} opacity={opacity} />;
+  return (
+    <CornerBrandLockup
+      theme={theme}
+      locale={locale}
+      opacity={opacity}
+      top={brandTop}
+      inset={portraitSafe ? portraitSafe.left : undefined}
+    />
+  );
 };

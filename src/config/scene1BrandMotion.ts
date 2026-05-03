@@ -1,5 +1,9 @@
 import { interpolate } from "remotion";
-import { SCENE1_FRAMES } from "./videoTimeline";
+import {
+  FULL_VIDEO_SCENE9_START_FRAME,
+  SCENE1_FRAMES,
+  SCENE9_FRAMES,
+} from "./videoTimeline";
 
 /** Crossfade length: flying hero out, global corner lockup in (seconds). */
 export const SCENE1_CORNER_HANDOFF_SEC = 0.12;
@@ -52,8 +56,15 @@ export function scene1CornerLockupOpacity(localFrame: number, fps: number): numb
 /**
  * Global corner overlay after Scene 1. While Scene 1 plays, opacity stays 0 — the lockup
  * is rendered inside Scene1ColdOpen via `scene1CornerLockupOpacity`.
+ * Hidden during Scene 9 — CTA has its own hero lockup; avoids double FamilyLearn.AI on screen.
  */
 export function globalBrandLogoOverlayOpacity(frame: number, _fps: number): number {
   if (frame < SCENE1_FRAMES) return 0;
+  if (
+    frame >= FULL_VIDEO_SCENE9_START_FRAME &&
+    frame < FULL_VIDEO_SCENE9_START_FRAME + SCENE9_FRAMES
+  ) {
+    return 0;
+  }
   return 1;
 }
